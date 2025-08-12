@@ -1,18 +1,17 @@
 import { Module } from '@nestjs/common';
-import { DatabaseModule } from 'src/databases/database.module';
 import { UserController } from './adapters/inbounds/user.controller';
-import { UserMongoRepository } from './adapters/outbounds/user.mongo.repository';
+import { UserTypeOrmRepository } from './adapters/outbounds/user.typeorm.repository';
 import { userRepositoryToken } from './applications/ports/user.repository';
 import { CreateUserUseCase } from './applications/usecases/createUser.usecase';
 import { GetUserByUsernameUseCase } from './applications/usecases/getUserByUsername.usecase';
 
 @Module({
-  imports: [DatabaseModule],
+  imports: [],
   controllers: [UserController],
   providers: [
     {
       provide: userRepositoryToken,
-      useClass: UserMongoRepository,
+      useClass: UserTypeOrmRepository,
     },
     CreateUserUseCase,
     GetUserByUsernameUseCase,

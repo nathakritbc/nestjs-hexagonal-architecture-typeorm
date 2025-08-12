@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { DatabaseModule } from 'src/databases/database.module';
 import { ProductController } from './adapters/inbounds/product.controller';
 import { ProductTypeOrmRepository } from './adapters/outbounds/product.typeorm.repository';
 import { productRepositoryToken } from './applications/ports/product.repository';
@@ -10,7 +9,7 @@ import { GetProductByIdUseCase } from './applications/usecases/getProductById.us
 import { UpdateProductByIdUseCase } from './applications/usecases/updateProductById.usecase';
 
 @Module({
-  imports: [DatabaseModule],
+  imports: [],
   controllers: [ProductController],
   providers: [
     {

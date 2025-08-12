@@ -3,13 +3,13 @@ POST {{host}}/users
 content-type: application/json
 
 {
-  "username": "user2",
-  "email": "user2@gmail.com",
+  "username": "user1",
+  "email": "user1@gmail.com",
 	"password": "12345678"
 }
 ###
 
 ### Get user by username
-GET {{host}}/users?username=user2
+GET {{host}}/users?username=user1
 content-type: application/json
 ###

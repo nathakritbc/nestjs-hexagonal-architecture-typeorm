@@ -1,6 +1,5 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
-
 import { Transactional } from '@nestjs-cls/transactional';
+import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { StrictBuilder } from 'builder-pattern';
 import type { UserUsername } from '../../applications/domains/user.domain';
 import { CreateUserUseCase } from '../../applications/usecases/createUser.usecase';

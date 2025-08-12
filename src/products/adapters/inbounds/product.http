@@ -1,11 +1,11 @@
 ### Login
 # @name login
-POST {{host}}/auth/login/email
+POST {{host}}/auth/login
 content-type: application/json
 
 {
-  "email": "jame@ex1app.com",
-	"password": "12345678Test"
+  "username": "user2",
+	"password": "12345678"
 }
 ###
 
@@ -26,12 +26,15 @@ authorization: Bearer {{myAccessToken}}
 
 ### Get All Products
 GET {{host}}/products
+authorization: Bearer {{myAccessToken}}
 
 ### Get Product By Id
 GET {{host}}/products/5b33cbbe-8294-4083-9a4c-981f6bd08533
+authorization: Bearer {{myAccessToken}}
 
 ### Delete Product By Id
 DELETE {{host}}/products/5efeac2d-ef72-4ebe-a851-48f0e6b8fca8
+authorization: Bearer {{myAccessToken}}
 
 ### Update Product By Id
 PUT {{host}}/products/5b33cbbe-8294-4083-9a4c-981f6bd08533

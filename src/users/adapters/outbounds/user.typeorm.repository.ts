@@ -8,7 +8,7 @@ import { UserRepository } from '../../applications/ports/user.repository';
 import { UserEntity } from './user.entity';
 
 @Injectable()
-export class UserMongoRepository implements UserRepository {
+export class UserTypeOrmRepository implements UserRepository {
   constructor(private readonly userModel: TransactionHost<TransactionalAdapterTypeOrm>) {}
 
   async create(user: IUser): Promise<IUser> {
@@ -19,14 +19,14 @@ export class UserMongoRepository implements UserRepository {
       email: user.email,
       password: user.password,
     });
-    return UserMongoRepository.toDomain(resultCreated);
+    return UserTypeOrmRepository.toDomain(resultCreated);
   }
 
   async getByUsername(username: string): Promise<IUser | undefined> {
     const user = await this.userModel.tx.getRepository(UserEntity).findOne({
       where: { username: username as UserUsername },
     });
-    return user ? UserMongoRepository.toDomain(user) : undefined;
+    return user ? UserTypeOrmRepository.toDomain(user) : undefined;
   }
 
   static toDomain(user: UserEntity): IUser {
