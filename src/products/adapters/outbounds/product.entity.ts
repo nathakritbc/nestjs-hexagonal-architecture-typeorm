@@ -6,7 +6,7 @@ import type {
   ProductName,
   ProductPrice,
   ProductUpdatedAt,
-} from 'src/products/applications/domains/product';
+} from 'src/products/applications/domains/product.domain';
 import type { Status } from 'src/types/utility.type';
 import { Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn } from 'typeorm';
 

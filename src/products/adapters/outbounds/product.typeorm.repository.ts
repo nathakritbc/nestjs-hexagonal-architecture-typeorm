@@ -12,7 +12,7 @@ import {
   ProductName,
   ProductPrice,
   ProductUpdatedAt,
-} from 'src/products/applications/domains/product';
+} from 'src/products/applications/domains/product.domain';
 import { CreateProductCommand, ProductRepository } from 'src/products/applications/ports/product.repository';
 import type { Status } from 'src/types/utility.type';
 import { v4 as uuidv4 } from 'uuid';

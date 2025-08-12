@@ -3,7 +3,7 @@ import { NotFoundException } from '@nestjs/common';
 import { Builder } from 'builder-pattern';
 import { vi } from 'vitest';
 import { mock } from 'vitest-mock-extended';
-import { IProduct, Product, ProductId, ProductName } from '../domains/product';
+import { IProduct, Product, ProductId, ProductName } from '../domains/product.domain';
 import { ProductRepository } from '../ports/product.repository';
 import { UpdateProductByIdUseCase } from './updateProductById.usecase';
 

@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker';
 import { NotFoundException } from '@nestjs/common';
 import { vi } from 'vitest';
 import { mock } from 'vitest-mock-extended';
-import { IProduct, ProductId } from '../domains/product';
+import { IProduct, ProductId } from '../domains/product.domain';
 import { ProductRepository } from '../ports/product.repository';
 import { DeleteProductByIdUseCase } from './deleteProductById.usecase';
 

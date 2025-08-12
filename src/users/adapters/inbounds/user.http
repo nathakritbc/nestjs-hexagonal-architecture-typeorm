@@ -1,0 +1,15 @@
+### Create user
+POST {{host}}/users
+content-type: application/json
+
+{
+  "username": "user2",
+  "email": "user2@gmail.com",
+	"password": "12345678"
+}
+###
+
+### Get user by username
+GET {{host}}/users?username=user2
+content-type: application/json
+###

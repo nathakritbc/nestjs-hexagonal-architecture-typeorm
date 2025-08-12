@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { IProduct } from '../domains/product';
+import { IProduct } from '../domains/product.domain';
 import type { CreateProductCommand, ProductRepository } from '../ports/product.repository';
 import { productRepositoryToken } from '../ports/product.repository';
 

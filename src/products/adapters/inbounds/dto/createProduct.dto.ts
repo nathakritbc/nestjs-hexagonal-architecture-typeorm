@@ -5,7 +5,7 @@ import type {
   ProductImage,
   ProductName,
   ProductPrice,
-} from 'src/products/applications/domains/product';
+} from 'src/products/applications/domains/product.domain';
 
 export class CreateProductDto {
   @ApiProperty({
