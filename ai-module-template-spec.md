@@ -46,6 +46,8 @@ src/{MODULE_NAME}/
 └── {MODULE_NAME}.module.ts
 ```
 
+### Note Generate {ENTITY_NAME}.domain.spec.ts only if the domain contains methods If the domain has no methods, do not create this file
+
 ## Implementation Steps
 
 ### Step 1: Domain Layer (Core Business Logic)
@@ -55,63 +57,62 @@ Create the domain entity first as it represents the core business concept.
 ```typescript
 import { Builder } from 'builder-pattern';
 
-export interface {ENTITY_NAME}Props {
-  id?: string;
+//use Branded type
+export type {ENTITY_NAME}Id = Brand<string, '{ENTITY_NAME}Id'>;
+export type {ENTITY_NAME}Price = Brand<number, '{ENTITY_NAME}Price'>;
+export type {ENTITY_NAME}CreatedAt = Brand<CreatedAt, '{ENTITY_NAME}CreatedAt'>;
+export type {ENTITY_NAME}UpdatedAt = Brand<UpdatedAt, '{ENTITY_NAME}UpdatedAt'>;
+
+
+export interface I{ENTITY_NAME} {
+  uuid: {ENTITY_NAME}Id;
+  price: {ENTITY_NAME}Price;
   // Add your domain properties here
-  createdAt?: Date;
-  updatedAt?: Date;
+  createdAt?: {ENTITY_NAME}CreatedAt;
+  updatedAt?: {ENTITY_NAME}UpdatedAt;
 }
 
-export class {ENTITY_NAME}Domain {
-  private props: {ENTITY_NAME}Props;
+export class {ENTITY_NAME} implements I{ENTITY_NAME}  {
+  uuid: {ENTITY_NAME}Id;
+  price: {ENTITY_NAME}Price;
+   // Add your domain properties here
 
-  constructor(props: {ENTITY_NAME}Props) {
-    this.props = props;
-  }
-
-  // Getters
-  get id(): string | undefined {
-    return this.props.id;
-  }
-
-  // Add other getters and business methods here
+  // Add other business methods here
 
   // Business logic methods
   // Example: validate(), canBeDeleted(), etc.
-
-  // Static factory method
-  static create(props: {ENTITY_NAME}Props): {ENTITY_NAME}Domain {
-    return Builder<{ENTITY_NAME}Domain>()
-      .id(props.id)
-      // Set other properties
-      .build();
-  }
-
-  // Convert to plain object
-  toPlainObject(): {ENTITY_NAME}Props {
-    return { ...this.props };
-  }
 }
 ```
 
 #### Domain Test Template (`{ENTITY_NAME}.domain.spec.ts`)
+
+#### testing ruls 1. Arrange 2. Act 3. Assert
 ```typescript
 import { describe, it, expect } from 'vitest';
 import { {ENTITY_NAME}Domain } from './{ENTITY_NAME}.domain';
 
 describe('{ENTITY_NAME}Domain', () => {
-  describe('create', () => {
+  describe('{Method Name}', () => {
     it('should create a {ENTITY_NAME} domain object', () => {
       // Test implementation
+      //Arrange 
+      //Act
+      //Assert
     });
 
     it('should validate required properties', () => {
       // Test validation logic
+      //Arrange 
+      //Act
+      //Assert
     });
   });
 
   describe('business logic methods', () => {
     // Test business logic methods
+    //Arrange 
+    //Act
+    //Assert
   });
 });
 ```
@@ -120,17 +121,24 @@ describe('{ENTITY_NAME}Domain', () => {
 
 #### Repository Interface Template (`{ENTITY_NAME}.repository.ts`)
 ```typescript
-import { {ENTITY_NAME}Domain } from '../domains/{ENTITY_NAME}.domain';
+import { {ENTITY_NAME},{ENTITY_NAME}Id } from '../domains/{ENTITY_NAME}.domain'; 
 
-export abstract class {ENTITY_NAME}Repository {
-  abstract create(entity: {ENTITY_NAME}Domain): Promise<{ENTITY_NAME}Domain>;
-  abstract findById(id: string): Promise<{ENTITY_NAME}Domain | null>;
-  abstract findAll(page?: number, limit?: number): Promise<{ENTITY_NAME}Domain[]>;
-  abstract update(id: string, entity: Partial<{ENTITY_NAME}Domain>): Promise<{ENTITY_NAME}Domain>;
-  abstract delete(id: string): Promise<void>;
+export type Create{ENTITY_NAME}Command = Omit<I{ENTITY_NAME}, 'uuid' | 'createdAt' | 'updatedAt'>; 
+
+export interface GetAllReturnType {
+  result: I{ENTITY_NAME}[];
+  meta: GetAllMetaType;
+}
+
+export interface {ENTITY_NAME}Repository {
+  create(entity: I{ENTITY_NAME}): Promise<I{ENTITY_NAME}>;
+  getById(id: {ENTITY_NAME}Id): Promise<{ENTITY_NAME}Domain | undefined>;
+  getAll(params: GetAllParamsType): Promise<GetAllReturnType>;
+  update(id: {ENTITY_NAME}Id, entity: Partial<I{ENTITY_NAME}>): Promise<I{ENTITY_NAME}>;
+  deleteById(id: {ENTITY_NAME}Id): Promise<void>;
   
   // Add custom query methods as needed
-  // abstract findBySpecificCriteria(criteria: any): Promise<{ENTITY_NAME}Domain[]>;
+  // getBySpecificCriteria(criteria: ICriteriaType): Promise<I{ENTITY_NAME}[]>;
 }
 ```
 
@@ -138,9 +146,10 @@ export abstract class {ENTITY_NAME}Repository {
 
 #### Use Case Template (`create{ENTITY_NAME}.usecase.ts`)
 ```typescript
-import { Injectable } from '@nestjs/common';
-import { {ENTITY_NAME}Domain } from '../domains/{ENTITY_NAME}.domain';
-import { {ENTITY_NAME}Repository } from '../ports/{ENTITY_NAME}.repository';
+import { Inject, Injectable } from '@nestjs/common';
+import { I{ENTITY_NAME} } from '../domains/{ENTITY_NAME}.domain';
+import type { Create{ENTITY_NAME}Command, {ENTITY_NAME}Repository } from '../ports/{ENTITY_NAME}.repository';
+import { {ENTITY_NAME}RepositoryToken } from '../ports/{ENTITY_NAME}.repository';
 
 export interface Create{ENTITY_NAME}Data {
   // Define input data structure
@@ -148,17 +157,13 @@ export interface Create{ENTITY_NAME}Data {
 
 @Injectable()
 export class Create{ENTITY_NAME}UseCase {
-  constructor(private readonly {ENTITY_NAME}Repository: {ENTITY_NAME}Repository) {}
+  constructor(
+    @Inject({ENTITY_NAME}RepositoryToken)
+    private readonly {ENTITY_NAME}Repository: {ENTITY_NAME}Repository,
+  ) {}
 
-  async execute(data: Create{ENTITY_NAME}Data): Promise<{ENTITY_NAME}Domain> {
-    // 1. Validate input data
-    // 2. Create domain entity
-    const {ENTITY_NAME} = {ENTITY_NAME}Domain.create({
-      // Map data to domain props
-    });
-
-    // 3. Apply business rules
-    // 4. Save through repository
+  async execute({ENTITY_NAME}: Create{ENTITY_NAME}Command): Promise<I{ENTITY_NAME}> { 
+    // Save through repository
     return await this.{ENTITY_NAME}Repository.create({ENTITY_NAME});
   }
 }

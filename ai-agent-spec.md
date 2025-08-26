@@ -187,26 +187,221 @@ Use the prettier-plugin-organize-imports to automatically organize imports:
 
 ## Common Patterns & Examples
 
-### Repository Implementation Pattern
+### Domain Pattern
 ```typescript
+import { Brand, CreatedAt, Status, UpdatedAt } from 'src/types/utility.type';
+
+export type ProductId = Brand<string, 'ProductId'>;
+export type ProductName = Brand<string, 'ProductName'>;
+export type ProductPrice = Brand<number, 'ProductPrice'>;
+export type ProductDescription = Brand<string, 'ProductDescription'>;
+export type ProductImage = Brand<string, 'ProductImage'>;
+export type ProductCreatedAt = Brand<CreatedAt, 'ProductCreatedAt'>;
+export type ProductUpdatedAt = Brand<UpdatedAt, 'ProductUpdatedAt'>;
+
+export interface IProduct {
+  uuid: ProductId;
+  name: ProductName;
+  price: ProductPrice;
+  description?: ProductDescription;
+  status: Status;
+  image?: ProductImage;
+  createdAt?: ProductCreatedAt;
+  updatedAt?: ProductUpdatedAt;
+}
+
+export class Product implements IProduct {
+  uuid: ProductId;
+  name: ProductName;
+  price: ProductPrice;
+  description?: ProductDescription;
+  status: Status;
+  image?: ProductImage;
+  createdAt?: ProductCreatedAt;
+  updatedAt?: ProductUpdatedAt;
+}
+```
+
+### Create Entity Pattern
+
+```typescript
+
+export const productTableName = 'products';
+
+@Entity({
+  name: productTableName,
+})
+export class ProductEntity {
+  @PrimaryColumn({
+    type: 'uuid',
+  })
+  uuid: ProductId;
+
+  @Column({
+    type: 'varchar',
+  })
+  name: ProductName;
+
+  @Column({
+    type: 'float',
+  })
+  price: ProductPrice;
+
+  @Column({
+    type: 'varchar',
+    nullable: true,
+  })
+  description?: ProductDescription;
+
+  @Column({
+    type: 'varchar',
+    nullable: true,
+  })
+  image?: ProductImage;
+
+  @Column({
+    type: 'varchar',
+    default: 'active',
+  })
+  status: Status;
+
+  @CreateDateColumn()
+  declare createdAt: ProductCreatedAt;
+
+  @UpdateDateColumn()
+  declare updatedAt: ProductUpdatedAt;
+}
+```
+
+### Repository Implementation Pattern
+```typescript 
+
 // Port (Interface)
-export abstract class UserRepository {
-  abstract create(user: UserDomain): Promise<UserDomain>;
-  abstract findById(id: string): Promise<UserDomain | null>;
+import { GetAllMetaType, GetAllParamsType } from 'src/types/utility.type';
+import { IProduct, ProductId } from '../domains/product.domain';
+
+export type CreateProductCommand = Omit<IProduct, 'uuid' | 'status' | 'createdAt' | 'updatedAt'>;
+
+export interface GetAllReturnType {
+  result: IProduct[];
+  meta: GetAllMetaType;
+}
+
+const productRepositoryTokenSymbol: unique symbol = Symbol('ProductRepository');
+export const productRepositoryToken = productRepositoryTokenSymbol.toString();
+
+export interface ProductRepository {
+  create(product: CreateProductCommand): Promise<IProduct>;
+  deleteById(id: ProductId): Promise<void>;
+  getAll(params: GetAllParamsType): Promise<GetAllReturnType>;
+  getById(id: ProductId): Promise<IProduct | undefined>;
+  updateById(id: ProductId, product: Partial<IProduct>): Promise<IProduct>;
 }
 
 // Adapter (Implementation)
+import { TransactionHost } from '@nestjs-cls/transactional';
+import { TransactionalAdapterTypeOrm } from '@nestjs-cls/transactional-adapter-typeorm';
+import { Injectable } from '@nestjs/common';
+import { Builder, StrictBuilder } from 'builder-pattern';
+import {
+  IProduct,
+  Product,
+  ProductCreatedAt,
+  ProductDescription,
+  ProductId,
+  ProductImage,
+  ProductName,
+  ProductPrice,
+  ProductUpdatedAt,
+} from 'src/products/applications/domains/product.domain';
+import {
+  CreateProductCommand,
+  GetAllReturnType,
+  ProductRepository,
+} from 'src/products/applications/ports/product.repository';
+import { GetAllMetaType, GetAllParamsType, type Status } from 'src/types/utility.type';
+import { v4 as uuidv4 } from 'uuid';
+import { ProductEntity } from './product.entity';
 @Injectable()
-export class UserTypeormRepository extends UserRepository {
-  constructor(
-    @InjectRepository(UserEntity)
-    private readonly userRepository: Repository<UserEntity>
-  ) {
-    super();
+export class ProductTypeOrmRepository implements ProductRepository {
+  constructor(private readonly productModel: TransactionHost<TransactionalAdapterTypeOrm>) {}
+
+  async create(product: CreateProductCommand): Promise<IProduct> {
+    const uuid = uuidv4() as ProductId;
+    const resultCreated = await this.productModel.tx.getRepository(ProductEntity).save({
+      uuid: uuid,
+      name: product.name,
+      price: product.price,
+      description: product.description,
+      image: product.image,
+    });
+    return ProductTypeOrmRepository.toDomain(resultCreated as ProductEntity);
   }
-  
-  async create(user: UserDomain): Promise<UserDomain> {
-    // Implementation
+
+  async deleteById(id: ProductId): Promise<void> {
+    await this.productModel.tx.getRepository(ProductEntity).delete({ uuid: id });
+  }
+
+  async getAll(params: GetAllParamsType): Promise<GetAllReturnType> {
+    const { search, sort, order, page, limit } = params;
+
+    const currentPage = page ?? 1;
+    const currentLimit = limit ?? 10;
+
+    const queryBuilder = this.productModel.tx.getRepository(ProductEntity).createQueryBuilder('product');
+
+    if (search) {
+      queryBuilder.where('product.name LIKE :search', { search: `%${search}%` });
+    }
+
+    const sortableColumns = ['name', 'price', 'createdAt'];
+    if (sort && sortableColumns.includes(sort)) {
+      queryBuilder.orderBy(`product.${sort}`, order === 'ASC' ? 'ASC' : 'DESC');
+    }
+
+    if (currentLimit !== -1) {
+      queryBuilder.skip((currentPage - 1) * currentLimit).take(currentLimit);
+    }
+
+    const [products, count] = await queryBuilder.getManyAndCount();
+
+    const result = products.map((product) => ProductTypeOrmRepository.toDomain(product));
+
+    const meta = StrictBuilder<GetAllMetaType>().page(currentPage).limit(currentLimit).total(count).build();
+
+    return StrictBuilder<GetAllReturnType>().result(result).meta(meta).build();
+  }
+
+  async getById(id: ProductId): Promise<IProduct | undefined> {
+    const product = await this.productModel.tx.getRepository(ProductEntity).findOne({
+      where: {
+        uuid: id,
+      },
+    });
+    return product ? ProductTypeOrmRepository.toDomain(product) : undefined;
+  }
+
+  async updateById(id: ProductId, product: Partial<IProduct>): Promise<IProduct> {
+    await this.productModel.tx.getRepository(ProductEntity).update({ uuid: id }, product);
+    const updatedProduct = await this.productModel.tx.getRepository(ProductEntity).findOne({
+      where: {
+        uuid: id,
+      },
+    });
+    return ProductTypeOrmRepository.toDomain(updatedProduct as ProductEntity);
+  }
+
+  public static toDomain(productEntity: ProductEntity): IProduct {
+    return Builder(Product)
+      .uuid(productEntity.uuid as ProductId)
+      .name(productEntity.name as ProductName)
+      .price(productEntity.price as ProductPrice)
+      .description(productEntity.description as ProductDescription)
+      .image(productEntity.image as ProductImage)
+      .status(productEntity.status as Status)
+      .createdAt(productEntity.createdAt as ProductCreatedAt)
+      .updatedAt(productEntity.updatedAt as ProductUpdatedAt)
+      .build();
   }
 }
 ```
@@ -214,27 +409,275 @@ export class UserTypeormRepository extends UserRepository {
 ### Use Case Pattern
 ```typescript
 @Injectable()
-export class CreateUserUseCase {
-  constructor(private readonly userRepository: UserRepository) {}
-  
-  async execute(data: CreateUserData): Promise<UserDomain> {
+export class DeleteProductByIdUseCase {
+  constructor(
+    @Inject(productRepositoryToken)
+    private readonly productRepository: ProductRepository,
+  ) {}
+
+  async execute(id: ProductId): Promise<void> {
     // Business logic
   }
 }
 ```
 
+### Test Pattern
+#### testing ruls 1. Arrange 2. Act 3. Assert
+
+```typescript
+describe('DeleteProductByIdUseCase', () => {
+  let deleteProductByIdUseCase: DeleteProductByIdUseCase;
+  const productRepository = mock<ProductRepository>();
+
+  beforeEach(() => {
+    deleteProductByIdUseCase = new DeleteProductByIdUseCase(productRepository);
+  });
+
+  afterEach(() => {
+    vi.resetAllMocks();
+  });
+
+  const productId = faker.string.uuid() as ProductId;
+  it('should be throw error when product not found', async () => {
+    //Arrange
+    productRepository.getById.mockResolvedValue(undefined);
+    const errorExpected = new NotFoundException('Product not found');
+
+    //Act
+    const actual = deleteProductByIdUseCase.execute(productId);
+
+    //Assert
+    await expect(actual).rejects.toThrow(errorExpected);
+    expect(productRepository.getById).toHaveBeenCalledWith(productId);
+    expect(productRepository.deleteById).not.toHaveBeenCalled();
+  });
+
+  it('should be delete product', async () => {
+    //Arrange
+    productRepository.getById.mockResolvedValue(mock<IProduct>({ uuid: productId }));
+    productRepository.deleteById.mockResolvedValue(undefined);
+
+    //Act
+    const actual = await deleteProductByIdUseCase.execute(productId);
+    //Assert
+    expect(actual).toBeUndefined();
+    expect(productRepository.getById).toHaveBeenCalledWith(productId);
+    expect(productRepository.deleteById).toHaveBeenCalledWith(productId);
+  });
+});
+```
+
 ### Controller Pattern
 ```typescript
-@Controller('users')
-@ApiTags('Users')
-export class UserController {
-  constructor(private readonly createUserUseCase: CreateUserUseCase) {}
-  
+
+@UseGuards(JwtAuthGuard)
+@Controller('products')
+export class ProductController {
+  constructor(
+    private readonly createProductUseCase: CreateProductUseCase,
+    private readonly deleteProductByIdUseCase: DeleteProductByIdUseCase,
+    private readonly getAllProductsUseCase: GetAllProductsUseCase,
+    private readonly updateProductByIdUseCase: UpdateProductByIdUseCase,
+    private readonly getProductByIdUseCase: GetProductByIdUseCase,
+  ) {}
+
+  @ApiOperation({ summary: 'Create a product' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'The product has been successfully created.',
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Internal server error.',
+  })
   @Post()
-  @ApiOperation({ summary: 'Create user' })
-  async create(@Body() dto: CreateUserDto): Promise<UserResponseDto> {
-    // Delegate to use case
+  @Transactional()
+  create(@Body() createProductDto: CreateProductDto): Promise<IProduct> {
+    const command = Builder<IProduct>()
+      .name(createProductDto.name as ProductName)
+      .price(createProductDto.price as ProductPrice)
+      .image(createProductDto.image as ProductImage)
+      .description(createProductDto.description as ProductDescription)
+      .build();
+    return this.createProductUseCase.execute(command);
   }
+
+  @ApiOperation({ summary: 'Get all products' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'The products have been successfully retrieved.',
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Internal server error.',
+  })
+  @Transactional()
+  @Get()
+  getAll(): Promise<IProduct[]> {
+    return this.getAllProductsUseCase.execute();
+  }
+
+  @ApiOperation({ summary: 'Delete a product' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'The product has been successfully deleted.',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'The product not found in the system.',
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Internal server error.',
+  })
+  @Transactional()
+  @ApiParam({ name: 'id', type: String, description: 'The id of the product' })
+  @Delete(':id')
+  delete(@Param('id', ParseUUIDPipe) id: ProductId): Promise<void> {
+    return this.deleteProductByIdUseCase.execute(id);
+  }
+
+  @ApiOperation({ summary: 'Update a product' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'The product has been successfully updated.',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'The product not found in the system.',
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Internal server error.',
+  })
+  @ApiParam({ name: 'id', type: String, description: 'The id of the product' })
+  @Transactional()
+  @Put(':id')
+  update(@Param('id', ParseUUIDPipe) id: ProductId, @Body() updateProductDto: UpdateProductDto): Promise<IProduct> {
+    const command = Builder<IProduct>()
+      .name(updateProductDto.name as ProductName)
+      .price(updateProductDto.price as ProductPrice)
+      .image(updateProductDto.image as ProductImage)
+      .description(updateProductDto.description as ProductDescription)
+      .status(updateProductDto.status as Status)
+      .build();
+    return this.updateProductByIdUseCase.execute(id, command);
+  }
+
+  @ApiOperation({ summary: 'Get a product by id' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'The product has been successfully retrieved.',
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Internal server error.',
+  })
+  @ApiParam({ name: 'id', type: String, description: 'The id of the product' })
+  @Transactional()
+  @Get(':id')
+  getById(@Param('id', ParseUUIDPipe) id: ProductId): Promise<IProduct | undefined> {
+    return this.getProductByIdUseCase.execute(id);
+  }
+}
+```
+
+### Create Dto Pattern
+
+```typescript
+export class CreateProductDto {
+  @ApiProperty({
+    type: String,
+    example: 'John Doe',
+    description: 'The name of the product in multiple languages',
+  })
+  @IsNotEmpty()
+  name: ProductName;
+
+  @ApiProperty({
+    type: Number,
+    example: 100.75,
+    description: 'The price of the product',
+  })
+  @IsNotEmpty()
+  price: ProductPrice;
+
+  @ApiProperty({
+    type: String,
+    example: 'https://example.com/avatar.jpg',
+    description: 'The image of the product',
+  })
+  @IsOptional()
+  image?: ProductImage;
+
+  @ApiProperty({
+    type: String,
+    example: 'This is a product description',
+    description: 'The description of the product',
+  })
+  @IsOptional()
+  description: ProductDescription;
+}
+```
+
+### Update Dto Pattern
+
+```typescript
+import { IProduct } from 'src/products/applications/domains/product.domain';
+
+export interface UpdateProductDto extends Partial<IProduct> {}
+```
+
+### Http  Rest Client File Pattern
+```bash
+### Login
+# @name login
+POST {{host}}/auth/login
+content-type: application/json
+
+{
+  "username": "user2",
+ "password": "12345678"
+}
+###
+
+@myAccessToken = {{login.response.body.accessToken}}
+
+### Create products
+POST {{host}}/products
+Content-Type: application/json
+authorization: Bearer {{myAccessToken}}
+
+{ 
+
+    "name": "Product new 66",
+    "price": 100,
+    "image": "https://example.com/avatar.jpg",
+    "description": "This is a product description"
+}
+
+### Get All Products
+GET {{host}}/products
+authorization: Bearer {{myAccessToken}}
+
+### Get Product By Id
+GET {{host}}/products/5b33cbbe-8294-4083-9a4c-981f6bd08533
+authorization: Bearer {{myAccessToken}}
+
+### Delete Product By Id
+DELETE {{host}}/products/5efeac2d-ef72-4ebe-a851-48f0e6b8fca8
+authorization: Bearer {{myAccessToken}}
+
+### Update Product By Id
+PUT {{host}}/products/5b33cbbe-8294-4083-9a4c-981f6bd08533
+Content-Type: application/json
+authorization: Bearer {{myAccessToken}}
+
+{
+    "name": "Product new 99 update",
+    "price": 1000,
+    "image": "https://example.com/avatar.jpg",
+    "description": "This is a product description"
 }
 ```
 
