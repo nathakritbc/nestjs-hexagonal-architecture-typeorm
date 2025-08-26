@@ -1,7 +1,7 @@
 import { TransactionHost } from '@nestjs-cls/transactional';
 import { TransactionalAdapterTypeOrm } from '@nestjs-cls/transactional-adapter-typeorm';
 import { Injectable } from '@nestjs/common';
-import { Builder } from 'builder-pattern';
+import { Builder, StrictBuilder } from 'builder-pattern';
 import {
   IProduct,
   Product,
@@ -13,8 +13,12 @@ import {
   ProductPrice,
   ProductUpdatedAt,
 } from 'src/products/applications/domains/product.domain';
-import { CreateProductCommand, ProductRepository } from 'src/products/applications/ports/product.repository';
-import type { Status } from 'src/types/utility.type';
+import {
+  CreateProductCommand,
+  GetAllReturnType,
+  ProductRepository,
+} from 'src/products/applications/ports/product.repository';
+import { GetAllMetaType, GetAllParamsType, type Status } from 'src/types/utility.type';
 import { v4 as uuidv4 } from 'uuid';
 import { ProductEntity } from './product.entity';
 @Injectable()
@@ -37,13 +41,34 @@ export class ProductTypeOrmRepository implements ProductRepository {
     await this.productModel.tx.getRepository(ProductEntity).delete({ uuid: id });
   }
 
-  async getAll(): Promise<IProduct[]> {
-    const products = await this.productModel.tx.getRepository(ProductEntity).find({
-      order: {
-        createdAt: 'DESC',
-      } as any,
-    });
-    return products ? products.map((product) => ProductTypeOrmRepository.toDomain(product)) : [];
+  async getAll(params: GetAllParamsType): Promise<GetAllReturnType> {
+    const { search, sort, order, page, limit } = params;
+
+    const currentPage = page ?? 1;
+    const currentLimit = limit ?? 10;
+
+    const queryBuilder = this.productModel.tx.getRepository(ProductEntity).createQueryBuilder('product');
+
+    if (search) {
+      queryBuilder.where('product.name LIKE :search', { search: `%${search}%` });
+    }
+
+    const sortableColumns = ['name', 'price', 'createdAt'];
+    if (sort && sortableColumns.includes(sort)) {
+      queryBuilder.orderBy(`product.${sort}`, order === 'ASC' ? 'ASC' : 'DESC');
+    }
+
+    if (currentLimit !== -1) {
+      queryBuilder.skip((currentPage - 1) * currentLimit).take(currentLimit);
+    }
+
+    const [products, count] = await queryBuilder.getManyAndCount();
+
+    const result = products.map((product) => ProductTypeOrmRepository.toDomain(product));
+
+    const meta = StrictBuilder<GetAllMetaType>().page(currentPage).limit(currentLimit).total(count).build();
+
+    return StrictBuilder<GetAllReturnType>().result(result).meta(meta).build();
   }
 
   async getById(id: ProductId): Promise<IProduct | undefined> {

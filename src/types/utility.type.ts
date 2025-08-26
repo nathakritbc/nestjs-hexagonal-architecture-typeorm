@@ -1,3 +1,17 @@
+export interface GetAllParamsType {
+  search?: string;
+  sort?: string;
+  order?: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface GetAllMetaType {
+  total: number;
+  page: number;
+  limit: number;
+}
+
 export enum EStatus {
   ACTIVE = 'active',
   INACTIVE = 'inactive',

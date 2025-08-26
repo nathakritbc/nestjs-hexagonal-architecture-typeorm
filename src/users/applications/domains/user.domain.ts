@@ -11,7 +11,7 @@ export type UserCreatedAt = Brand<CreatedAt, 'UserCreatedAt'>;
 export type UserUpdatedAt = Brand<UpdatedAt, 'UserUpdatedAt'>;
 
 export interface IUser {
-  id?: UserId;
+  id: UserId;
   username: UserUsername;
   password: UserPassword;
   email: UserEmail;
@@ -24,7 +24,7 @@ export interface IUser {
 }
 
 export class User implements IUser {
-  id?: UserId;
+  id: UserId;
   username: UserUsername;
   password: UserPassword;
   email: UserEmail;
