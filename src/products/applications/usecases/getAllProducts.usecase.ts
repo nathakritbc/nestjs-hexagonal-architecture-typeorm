@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { IProduct } from '../domains/product.domain';
-import type { ProductRepository } from '../ports/product.repository';
+import type { GetAllParamsType } from 'src/types/utility.type';
+import type { GetAllReturnType, ProductRepository } from '../ports/product.repository';
 import { productRepositoryToken } from '../ports/product.repository';
 
 @Injectable()
@@ -10,7 +10,13 @@ export class GetAllProductsUseCase {
     private readonly productRepository: ProductRepository,
   ) {}
 
-  async execute(): Promise<IProduct[]> {
-    return this.productRepository.getAll();
+  async execute(params: GetAllParamsType): Promise<GetAllReturnType> {
+    return this.productRepository.getAll({
+      search: params.search,
+      sort: params.sort,
+      order: params.order,
+      page: params.page,
+      limit: params.limit,
+    });
   }
 }
