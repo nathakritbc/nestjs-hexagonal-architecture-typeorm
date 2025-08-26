@@ -23,7 +23,52 @@
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+A **NestJS application** implementing **Hexagonal Architecture (Ports and Adapters)** with **TypeORM** and **PostgreSQL**. This project demonstrates clean architecture principles with clear separation between business logic, infrastructure, and presentation layers.
+
+### 🏗️ Architecture
+
+This project follows **Hexagonal Architecture** patterns with:
+- **Domain Layer**: Core business logic and entities
+- **Application Layer**: Use cases and ports (interfaces)  
+- **Infrastructure Layer**: Adapters for databases, external APIs, etc.
+- **Presentation Layer**: Controllers, DTOs, and API endpoints
+
+### 🚀 AI-Powered Development
+
+This project includes comprehensive AI specifications for rapid module development:
+
+- **`ai-agent-spec.md`** - Complete project specification and guidelines
+- **`ai-module-template-spec.md`** - Template for creating new modules
+- **`HOW_TO_CREATE_NEW_MODULE.md`** - Detailed guide for module creation
+- **`QUICK_MODULE_GUIDE.md`** - Quick reference for experienced developers
+
+**Quick Start with AI**: 
+```
+ช่วยสร้าง module ใหม่ชื่อ 'products' สำหรับจัดการสินค้า
+โดยใช้ ai-module-template-spec.md เป็นแนวทาง
+```
+
+### 📁 Module Structure
+
+Each module follows consistent hexagonal architecture:
+
+```
+src/{module}/
+├── adapters/
+│   ├── inbounds/          # Controllers, DTOs
+│   └── outbounds/         # Database entities, repositories  
+├── applications/
+│   ├── domains/           # Business logic & entities
+│   ├── ports/             # Repository interfaces
+│   └── usecases/          # Application logic
+└── {module}.module.ts     # NestJS module configuration
+```
+
+### 🛠️ Existing Modules
+
+- **Users** - User management and authentication
+- **Products** - Product catalog management
+- **Auth** - JWT authentication and authorization
 
 ## Project setup
 
