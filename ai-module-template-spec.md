@@ -89,7 +89,7 @@ export class {ENTITY_NAME} implements I{ENTITY_NAME}  {
 
 #### Domain Test Template (`{ENTITY_NAME}.domain.spec.ts`)
 
-#### testing ruls 1. Arrange 2. Act 3. Assert
+#### Testing ruls 1. Arrange 2. Act 3. Assert
 ```typescript
 import { describe, it, expect } from 'vitest';
 import { {ENTITY_NAME}Domain } from './{ENTITY_NAME}.domain';
@@ -222,9 +222,9 @@ export class Delete{ENTITY_NAME}ByIdUseCase {
 }
 ```
 
-### Step 4: Use Cases Layer
+### Step 4: Test Layer "Test only .usecase.ts files"
 
-#### Use Case Test Template (`create{ENTITY_NAME}.usecase.spec.ts`)
+#### Test Template (`delete{ENTITY_NAME}.usecase.spec.ts`)
 ```typescript
 import { faker } from '@faker-js/faker';
 import { NotFoundException } from '@nestjs/common';
