@@ -121,7 +121,7 @@ describe('{ENTITY_NAME}Domain', () => {
 
 #### Repository Interface Template (`{ENTITY_NAME}.repository.ts`)
 ```typescript
-import { {ENTITY_NAME},{ENTITY_NAME}Id } from '../domains/{ENTITY_NAME}.domain'; 
+import type { {ENTITY_NAME},{ENTITY_NAME}Id } from '../domains/{ENTITY_NAME}.domain'; 
 
 export type Create{ENTITY_NAME}Command = Omit<I{ENTITY_NAME}, 'uuid' | 'createdAt' | 'updatedAt'>; 
 
@@ -195,7 +195,7 @@ export class GetAll{ENTITY_NAME}sUseCase {
 #### Delete Use Case Template (`delete{ENTITY_NAME}.usecase.ts`)
 ```typescript
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { {ENTITY_NAME}Id } from '../domains/{ENTITY_NAME}.domain';
+import type { {ENTITY_NAME}Id } from '../domains/{ENTITY_NAME}.domain';
 import type { {ENTITY_NAME}Repository } from '../ports/{ENTITY_NAME}.repository';
 import { {ENTITY_NAME}RepositoryToken } from '../ports/{ENTITY_NAME}.repository'; 
 
@@ -226,7 +226,7 @@ import { faker } from '@faker-js/faker';
 import { NotFoundException } from '@nestjs/common';
 import { vi } from 'vitest';
 import { mock } from 'vitest-mock-extended';
-import { I{ENTITY_NAME}, {ENTITY_NAME}Id } from '../domains/{ENTITY_NAME}.domain';
+import type { I{ENTITY_NAME}, {ENTITY_NAME}Id } from '../domains/{ENTITY_NAME}.domain';
 import { {ENTITY_NAME}Repository } from '../ports/{ENTITY_NAME}.repository';
 import { Delete{ENTITY_NAME}ByIdUseCase } from './delete{ENTITY_NAME}ById.usecase';
 
@@ -346,7 +346,7 @@ import { TransactionHost } from '@nestjs-cls/transactional';
 import { TransactionalAdapterTypeOrm } from '@nestjs-cls/transactional-adapter-typeorm';
 import { Injectable } from '@nestjs/common';
 import { Builder, StrictBuilder } from 'builder-pattern';
-import {
+import type {
   I{ENTITY_NAME},
   {ENTITY_NAME},
   {ENTITY_NAME}CreatedAt,
@@ -769,7 +769,7 @@ import { {ENTITY_NAME}TypeormRepository } from './adapters/outbounds/{ENTITY_NAM
 import { {ENTITY_NAME}Entity } from './adapters/outbounds/{ENTITY_NAME}.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([{ENTITY_NAME}Entity])],
+  imports: [],
   controllers: [{ENTITY_NAME}Controller],
   providers: [
     // Use Cases
