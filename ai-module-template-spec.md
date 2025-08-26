@@ -78,6 +78,9 @@ export class {ENTITY_NAME} implements I{ENTITY_NAME}  {
    // Add your domain properties here
 
   // Add other business methods here
+  // Place other business methods here.
+  // Only add methods if there is actual business logic.
+  // Do not create methods just for the sake of having them in the domain.
 
   // Business logic methods
   // Example: validate(), canBeDeleted(), etc.
@@ -219,6 +222,7 @@ export class Delete{ENTITY_NAME}ByIdUseCase {
 }
 ```
 
+### Step 4: Use Cases Layer
 
 #### Use Case Test Template (`create{ENTITY_NAME}.usecase.spec.ts`)
 ```typescript
@@ -285,7 +289,7 @@ describe('Delete{ENTITY_NAME}UseCase', () => {
 });
 ```
 
-### Step 4: Outbound Adapters (Database Layer)
+### Step 5: Outbound Adapters (Database Layer)
 
 #### TypeORM Entity Template (`{ENTITY_NAME}.entity.ts`)
 ```typescript
@@ -451,7 +455,7 @@ export class {ENTITY_NAME}TypeOrmRepository implements {ENTITY_NAME}Repository {
 }
 ```
 
-### Step 5: Inbound Adapters (API Layer)
+### Step 6: Inbound Adapters (API Layer)
 
 #### DTO Templates
 
@@ -746,7 +750,7 @@ authorization: Bearer {{myAccessToken}}
 
 ```
 
-### Step 6: Module Configuration
+### Step 7: Module Configuration
 
 #### Module Template (`{MODULE_NAME}.module.ts`)
 ```typescript
