@@ -1,13 +1,15 @@
 # AI Module Template Specification - NestJS Hexagonal Architecture
 
 ## Template Overview
+
 This template provides a standardized approach for creating new modules within the NestJS Hexagonal Architecture project. Use this as a guide when implementing new domain modules.
 
 ## Module Creation Checklist
 
 ### Pre-Development Planning
+
 - [ ] Define module domain and boundaries
-- [ ] Identify business entities and value objects  
+- [ ] Identify business entities and value objects
 - [ ] List required use cases and operations
 - [ ] Plan external dependencies and integrations
 - [ ] Design database schema requirements
@@ -16,7 +18,7 @@ This template provides a standardized approach for creating new modules within t
 
 Replace `{MODULE_NAME}` and `{ENTITY_NAME}` with your actual module and entity names:
 
-```
+```text
 src/{MODULE_NAME}/
 ├── adapters/
 │   ├── inbounds/
@@ -51,9 +53,11 @@ src/{MODULE_NAME}/
 ## Implementation Steps
 
 ### Step 1: Domain Layer (Core Business Logic)
+
 Create the domain entity first as it represents the core business concept.
 
 #### Domain Entity Template (`{ENTITY_NAME}.domain.ts`)
+
 ```typescript
 import { Builder } from 'builder-pattern';
 
@@ -90,6 +94,7 @@ export class {ENTITY_NAME} implements I{ENTITY_NAME}  {
 #### Domain Test Template (`{ENTITY_NAME}.domain.spec.ts`)
 
 #### Testing ruls 1. Arrange 2. Act 3. Assert
+
 ```typescript
 import { describe, it, expect } from 'vitest';
 import { {ENTITY_NAME}Domain } from './{ENTITY_NAME}.domain';
@@ -98,14 +103,14 @@ describe('{ENTITY_NAME}Domain', () => {
   describe('{Method Name}', () => {
     it('should create a {ENTITY_NAME} domain object', () => {
       // Test implementation
-      //Arrange 
+      //Arrange
       //Act
       //Assert
     });
 
     it('should validate required properties', () => {
       // Test validation logic
-      //Arrange 
+      //Arrange
       //Act
       //Assert
     });
@@ -113,7 +118,7 @@ describe('{ENTITY_NAME}Domain', () => {
 
   describe('business logic methods', () => {
     // Test business logic methods
-    //Arrange 
+    //Arrange
     //Act
     //Assert
   });
@@ -123,10 +128,11 @@ describe('{ENTITY_NAME}Domain', () => {
 ### Step 2: Port Layer (Repository Interface)
 
 #### Repository Interface Template (`{ENTITY_NAME}.repository.ts`)
-```typescript
-import type { {ENTITY_NAME},{ENTITY_NAME}Id } from '../domains/{ENTITY_NAME}.domain'; 
 
-export type Create{ENTITY_NAME}Command = Omit<I{ENTITY_NAME}, 'uuid' | 'createdAt' | 'updatedAt'>; 
+```typescript
+import type { {ENTITY_NAME},{ENTITY_NAME}Id } from '../domains/{ENTITY_NAME}.domain';
+
+export type Create{ENTITY_NAME}Command = Omit<I{ENTITY_NAME}, 'uuid' | 'createdAt' | 'updatedAt'>;
 
 export interface GetAllReturnType {
   result: I{ENTITY_NAME}[];
@@ -139,7 +145,7 @@ export interface {ENTITY_NAME}Repository {
   getAll(params: GetAllParamsType): Promise<GetAllReturnType>;
   update(id: {ENTITY_NAME}Id, entity: Partial<I{ENTITY_NAME}>): Promise<I{ENTITY_NAME}>;
   deleteById(id: {ENTITY_NAME}Id): Promise<void>;
-  
+
   // Add custom query methods as needed
   // getBySpecificCriteria(criteria: ICriteriaType): Promise<I{ENTITY_NAME}[]>;
 }
@@ -148,6 +154,7 @@ export interface {ENTITY_NAME}Repository {
 ### Step 3: Use Cases Layer
 
 #### Create Use Case Template (`create{ENTITY_NAME}.usecase.ts`)
+
 ```typescript
 import { Inject, Injectable } from '@nestjs/common';
 import { I{ENTITY_NAME} } from '../domains/{ENTITY_NAME}.domain';
@@ -161,7 +168,7 @@ export class Create{ENTITY_NAME}UseCase {
     private readonly {ENTITY_NAME}Repository: {ENTITY_NAME}Repository,
   ) {}
 
-  async execute({ENTITY_NAME}: Create{ENTITY_NAME}Command): Promise<I{ENTITY_NAME}> { 
+  async execute({ENTITY_NAME}: Create{ENTITY_NAME}Command): Promise<I{ENTITY_NAME}> {
     // Save through repository
     return await this.{ENTITY_NAME}Repository.create({ENTITY_NAME});
   }
@@ -196,11 +203,12 @@ export class GetAll{ENTITY_NAME}sUseCase {
 ```
 
 #### Delete Use Case Template (`delete{ENTITY_NAME}.usecase.ts`)
+
 ```typescript
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import type { {ENTITY_NAME}Id } from '../domains/{ENTITY_NAME}.domain';
 import type { {ENTITY_NAME}Repository } from '../ports/{ENTITY_NAME}.repository';
-import { {ENTITY_NAME}RepositoryToken } from '../ports/{ENTITY_NAME}.repository'; 
+import { {ENTITY_NAME}RepositoryToken } from '../ports/{ENTITY_NAME}.repository';
 
 @Injectable()
 export class Delete{ENTITY_NAME}ByIdUseCase {
@@ -224,74 +232,31 @@ export class Delete{ENTITY_NAME}ByIdUseCase {
 
 ### Step 4: Test Layer "Test only .usecase.ts files"
 
-#### Test Template (`delete{ENTITY_NAME}.usecase.spec.ts`)
-```typescript
-import { faker } from '@faker-js/faker';
-import { NotFoundException } from '@nestjs/common';
-import { vi } from 'vitest';
-import { mock } from 'vitest-mock-extended';
-import type { I{ENTITY_NAME}, {ENTITY_NAME}Id } from '../domains/{ENTITY_NAME}.domain';
-import { {ENTITY_NAME}Repository } from '../ports/{ENTITY_NAME}.repository';
-import { Delete{ENTITY_NAME}ByIdUseCase } from './delete{ENTITY_NAME}ById.usecase';
+> **Reference**: For comprehensive unit testing guidelines, see `src/ai-spec/unit-test-spec.md`
 
-describe('Delete{ENTITY_NAME}UseCase', () => {
-  let delete{ENTITY_NAME}ByIdUseCase: Delete{ENTITY_NAME}ByIdUseCase;
-  const {ENTITY_NAME}Repository = mock<{ENTITY_NAME}Repository>();
+#### All UseCase Test Files
 
-  beforeEach(() => {
-    delete{ENTITY_NAME}ByIdUseCase = new Delete{ENTITY_NAME}ByIdUseCase({ENTITY_NAME}Repository);
-  });
+**📋 For complete test templates and patterns**: Follow `src/ai-spec/unit-test-spec.md`
 
-  afterEach(() => {
-    vi.resetAllMocks();
-  });
+**Required test files**:
 
-  const {ENTITY_NAME}Id = faker.string.uuid() as {ENTITY_NAME}Id;
+- `create{ENTITY_NAME}.usecase.spec.ts`
+- `get{ENTITY_NAME}ById.usecase.spec.ts`
+- `getAll{ENTITY_NAME}s.usecase.spec.ts`
+- `update{ENTITY_NAME}ById.usecase.spec.ts`
+- `delete{ENTITY_NAME}ById.usecase.spec.ts`
 
-  describe('execute', () => {
-    it('should be throw error when {ENTITY_NAME} not found', async () => {
-      // Test implementation
-      //Step 1. Arrange
-      //Step 2. Act
-      //Step 3. Assert
+**Each test must achieve 100% coverage** following the patterns in `unit-test-spec.md`:
 
-      //Arrange
-      {ENTITY_NAME}Repository.getById.mockResolvedValue(undefined);
-      const errorExpected = new NotFoundException('{ENTITY_NAME} not found');
-
-      //Act
-      const actual = delete{ENTITY_NAME}ByIdUseCase.execute({ENTITY_NAME}Id);
-
-      //Assert
-      await expect(actual).rejects.toThrow(errorExpected);
-      expect({ENTITY_NAME}Repository.getById).toHaveBeenCalledWith({ENTITY_NAME}Id);
-      expect({ENTITY_NAME}Repository.deleteById).not.toHaveBeenCalled();
-    });
-
-    it('should be delete {ENTITY_NAME}', async () => {
-      // Test implementation
-      //Step 1. Arrange
-      //Step 2. Act
-      //Step 3. Assert
-
-      //Arrange
-      {ENTITY_NAME}Repository.getById.mockResolvedValue(mock<I{ENTITY_NAME}>({ uuid: {ENTITY_NAME}Id }));
-      {ENTITY_NAME}Repository.deleteById.mockResolvedValue(undefined);
-
-      //Act
-      const actual = await delete{ENTITY_NAME}ByIdUseCase.execute({ENTITY_NAME}Id);
-      //Assert
-      expect(actual).toBeUndefined();
-      expect({ENTITY_NAME}Repository.getById).toHaveBeenCalledWith({ENTITY_NAME}Id);
-      expect({ENTITY_NAME}Repository.deleteById).toHaveBeenCalledWith({ENTITY_NAME}Id);
-    });
-  });
-});
-```
+- Happy path scenarios
+- Error conditions (NotFoundException, ValidationException, etc.)
+- Mock verification for all repository interactions
+- Proper AAA pattern with Step 1. Arrange / Step 2. Act / Step 3. Assert comments
 
 ### Step 5: Outbound Adapters (Database Layer)
 
 #### TypeORM Entity Template (`{ENTITY_NAME}.entity.ts`)
+
 ```typescript
 import type {
   {ENTITY_NAME}CreatedAt,
@@ -306,7 +271,7 @@ import type { Status } from 'src/types/utility.type';
 import { Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn } from 'typeorm';
 
 export const {ENTITY_NAME}TableName = '{ENTITY_NAME}s';
- 
+
 @Entity({
   name: {ENTITY_NAME}TableName, // Usually plural table name
 })
@@ -344,7 +309,53 @@ export class {ENTITY_NAME}Entity {
 }
 ```
 
+### Step 5.1: Create Migration โดย ดูจาก Entity
+
+> **📋 For comprehensive migration guidelines and templates**: See `ai-migration-spec.md` for detailed migration specifications, naming conventions, and best practices.
+
+**Migration Creation Process:**
+
+#### Step 1: Create Empty Migration File
+```bash
+pnpm run migration:create -- --name=Create{ENTITY_NAME}Table
+```
+
+#### Step 2: Define Migration Code Following Template
+Use the migration template from `src/ai-spec/ai-migration-spec.md` to implement the `up()` and `down()` methods. The complete template includes:
+
+- Table creation with all necessary columns
+- Proper column types matching Entity decorators
+- Index creation for performance optimization
+- Safe rollback implementation in `down()` method
+
+**Reference**: See `src/ai-spec/ai-migration-spec.md` for the complete migration template and detailed guidelines.
+
+#### Step 3: Run Migration
+```bash
+pnpm run migration:run
+```
+
+**Key Requirements:**
+- Create migrations based on Entity definitions
+- Follow established naming conventions
+- Include proper indexes for query performance
+- Implement safe rollback methods
+- Test both up() and down() methods
+
+**Additional Migration Commands:**
+```bash
+# Generate migration from Entity changes (alternative approach)
+pnpm run migration:generate -- --name=Create{ENTITY_NAME}Table
+
+# Revert migration
+pnpm run migration:revert
+
+# Show migration status
+pnpm run migration:show
+```
+
 #### Repository Implementation Template (`{ENTITY_NAME}.typeorm.repository.ts`)
+
 ```typescript
 import { TransactionHost } from '@nestjs-cls/transactional';
 import { TransactionalAdapterTypeOrm } from '@nestjs-cls/transactional-adapter-typeorm';
@@ -460,6 +471,7 @@ export class {ENTITY_NAME}TypeOrmRepository implements {ENTITY_NAME}Repository {
 #### DTO Templates
 
 **Create DTO** (`create{ENTITY_NAME}.dto.ts`)
+
 ```typescript
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsOptional } from 'class-validator';
@@ -509,6 +521,7 @@ export class Create{ENTITY_NAME}Dto {
 ```
 
 **Update DTO** (`update{ENTITY_NAME}.dto.ts`)
+
 ```typescript
 import { ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 import { Create{ENTITY_NAME}Dto } from './create{ENTITY_NAME}.dto';
@@ -517,10 +530,11 @@ export class Update{ENTITY_NAME}Dto extends PartialType(Create{ENTITY_NAME}Dto) 
 ```
 
 **Response DTO** (`{ENTITY_NAME}Response.dto.ts`)
+
 ```typescript
 import { ApiProperty } from '@nestjs/swagger';
 import type {
-  {ENTITY_NAME}Id, 
+  {ENTITY_NAME}Id,
   {ENTITY_NAME}CreatedAt,
   {ENTITY_NAME}UpdatedAt
 } from 'src/{ENTITY_NAME}s/applications/domains/{ENTITY_NAME}.domain';
@@ -540,6 +554,7 @@ export class {ENTITY_NAME}ResponseDto {
 ```
 
 #### Controller Template (`{ENTITY_NAME}.controller.ts`)
+
 ```typescript
 import { Transactional } from '@nestjs-cls/transactional';
 import { Body, Controller, Delete, Get, HttpStatus, Param, ParseUUIDPipe, Post, Put, UseGuards } from '@nestjs/common';
@@ -688,6 +703,7 @@ export class {ENTITY_NAME}Controller {
 ```
 
 #### Rest client Template (`{ENTITY_NAME}.http`)
+
 ```bash
 ### Login
 
@@ -753,6 +769,7 @@ authorization: Bearer {{myAccessToken}}
 ### Step 7: Module Configuration
 
 #### Module Template (`{MODULE_NAME}.module.ts`)
+
 ```typescript
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -796,7 +813,10 @@ import { {ENTITY_NAME}Entity } from './adapters/outbounds/{ENTITY_NAME}.entity';
 export class {MODULE_NAME}Module {}
 ```
 
-## Module Registration 
+
+
+
+## Module Registration
 
 Add your new module to `app.module.ts`:
 
@@ -814,14 +834,18 @@ export class AppModule {}
 
 ## Testing Strategy
 
+> **📋 For detailed unit testing specifications**: See `src/ai-spec/unit-test-spec.md` for comprehensive testing guidelines including 100% coverage patterns, mock strategies, and complete examples.
+
 ### Test Coverage Requirements
-- [ ] Domain entity tests (business logic)
-- [ ] Use case tests (application logic)
+
+- [ ] Domain entity tests (business logic) - **Use unit-test-spec.md guidelines**
+- [ ] Use case tests (application logic) - **Use unit-test-spec.md templates**
 - [ ] Repository integration tests
 - [ ] Controller unit tests
 - [ ] E2E tests for critical paths
 
 ### Test File Naming
+
 - Domain tests: `{ENTITY_NAME}.domain.spec.ts`
 - Use case tests: `{operation}{ENTITY_NAME}.usecase.spec.ts`
 - Repository tests: `{ENTITY_NAME}.typeorm.repository.spec.ts`
@@ -839,6 +863,7 @@ pnpm run migration:run
 ## Final Checklist
 
 ### Development Complete Checklist
+
 - [ ] Domain entity with business logic implemented
 - [ ] Repository interface (port) defined
 - [ ] All use cases implemented with proper error handling
@@ -847,6 +872,8 @@ pnpm run migration:run
 - [ ] DTOs with validation decorators
 - [ ] Controller with proper API documentation
 - [ ] Module properly configured and registered
+- [ ] **All unit tests written following `src/ai-spec/unit-test-spec.md` patterns**
+- [ ] **100% test coverage achieved for UseCases and Domain methods**
 - [ ] All tests written and passing
 - [ ] Migration created and tested
 - [ ] API endpoints documented in Swagger
@@ -854,6 +881,7 @@ pnpm run migration:run
 - [ ] Error handling implemented appropriately
 
 ### Code Quality Verification
+
 ```bash
 pnpm lint                    # Check code style
 pnpm test                    # Run unit tests
@@ -864,21 +892,25 @@ pnpm test:e2e                # Run integration tests
 ## Common Patterns & Best Practices
 
 ### Domain Validation
+
 - Validate business rules in domain entities
 - Use value objects for complex validation
 - Throw domain-specific exceptions
 
 ### Error Handling
+
 - Create custom exception classes
 - Use proper HTTP status codes
 - Log errors with appropriate levels
 
 ### Performance
+
 - Add database indexes for frequently queried fields
 - Implement caching for read-heavy operations
 - Use pagination for list endpoints
 
 ### Security
+
 - Validate all inputs with class-validator
 - Implement proper authorization checks
 - Sanitize output data

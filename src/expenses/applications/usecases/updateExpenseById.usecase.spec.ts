@@ -1,12 +1,12 @@
 import { faker } from '@faker-js/faker';
 import { NotFoundException } from '@nestjs/common';
+import { Builder } from 'builder-pattern';
 import { UserId } from 'src/users/applications/domains/user.domain';
 import { vi } from 'vitest';
 import { mock } from 'vitest-mock-extended';
 import { ExpenseId, IExpense } from '../domains/expense.domain';
 import { ExpenseRepository } from '../ports/expense.repository';
 import { UpdateExpenseByIdUseCase } from './updateExpenseById.usecase';
-import { Builder } from 'builder-pattern';
 
 describe('UpdateExpenseByIdUseCase', () => {
   let useCase: UpdateExpenseByIdUseCase;
@@ -46,7 +46,7 @@ describe('UpdateExpenseByIdUseCase', () => {
 
     //Act
     const actual = await useCase.execute(command);
-    
+
     //Assert
     expect(actual).toEqual(expense);
     expect(expenseRepository.getByIdAndUserId).toHaveBeenCalledWith({ id: expenseId, userId });

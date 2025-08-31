@@ -23,6 +23,5 @@ import { UpdateExpenseByIdUseCase } from './applications/usecases/updateExpenseB
     GetExpenseReportUseCase,
     UpdateExpenseByIdUseCase,
   ],
-  
 })
 export class ExpensesModule {}

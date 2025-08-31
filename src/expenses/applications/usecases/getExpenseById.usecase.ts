@@ -14,7 +14,7 @@ export class GetExpenseByIdUseCase {
   async execute({ id, userId }: { id: ExpenseId; userId: UserId }): Promise<IExpense> {
     const expense = await this.expenseRepository.getByIdAndUserId({ id, userId });
     if (!expense) throw new NotFoundException('Expense not found');
-    
+
     return expense;
   }
 }

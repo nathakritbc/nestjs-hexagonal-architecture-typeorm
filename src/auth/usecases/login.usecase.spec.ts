@@ -28,7 +28,7 @@ describe('Login Use Case', () => {
   const user = mock<IUser>({
     uuid: userId,
     email,
-  }); 
+  });
 
   it('should be return jwt sign when user is exist and password correct.', async () => {
     // Arrange

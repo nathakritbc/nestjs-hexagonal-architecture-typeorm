@@ -33,7 +33,7 @@ export class CreateExpenseDto {
     description: 'The date of the expense (ISO date string)',
   })
   @IsDateString()
-  date: Date;  
+  date: Date;
 
   @ApiProperty({
     type: String,

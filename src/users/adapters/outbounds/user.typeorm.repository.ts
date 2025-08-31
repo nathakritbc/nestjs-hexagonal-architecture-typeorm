@@ -13,11 +13,7 @@ export class UserTypeOrmRepository implements UserRepository {
 
   async create(user: IUser): Promise<IUser> {
     const uuid = uuidv4() as UserId;
-    const userEntity = Builder(UserEntity)
-      .uuid(uuid)
-      .email(user.email)
-      .password(user.password)
-      .build();
+    const userEntity = Builder(UserEntity).uuid(uuid).email(user.email).password(user.password).build();
 
     const resultCreated = await this.userModel.tx.getRepository(UserEntity).save(userEntity);
     return UserTypeOrmRepository.toDomain(resultCreated);
