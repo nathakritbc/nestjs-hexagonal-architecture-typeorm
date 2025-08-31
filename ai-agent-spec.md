@@ -184,6 +184,7 @@ Use the prettier-plugin-organize-imports to automatically organize imports:
 - Create TypeORM migrations for schema changes
 - Test migrations in development environment
 - Apply migrations in production safely
+- **Migration Templates**: Use the standardized migration templates from [`src/ai-spec/ai-migration-spec.md`](./src/ai-spec/ai-migration-spec.md) for consistent database schema management
 
 ## Common Patterns & Examples
 
@@ -274,6 +275,7 @@ export class {Entity}Entity {
   declare updatedAt: {Entity}UpdatedAt;
 }
 ```
+
 
 ### Repository Implementation Pattern
 ```typescript 
