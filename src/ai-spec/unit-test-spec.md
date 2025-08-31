@@ -58,10 +58,6 @@ describe('{Operation}{Entity}UseCase', () => {
 
 ```typescript
 it('should be {successful_action_description}', async () => {
-  // Test implementation
-  //Step 1. Arrange
-  //Step 2. Act
-  //Step 3. Assert
 
   //Arrange
   const expectedResult = mock<I{Entity}>({ uuid: {entity}Id });
@@ -80,10 +76,6 @@ it('should be {successful_action_description}', async () => {
 
 ```typescript
 it('should be throw error when {error_condition}', async () => {
-  // Test implementation
-  //Step 1. Arrange
-  //Step 2. Act
-  //Step 3. Assert
 
   //Arrange
   const errorExpected = new {SpecificException}('{error_message}');
@@ -103,10 +95,6 @@ it('should be throw error when {error_condition}', async () => {
 
 ```typescript
 it('should be throw error when {validation_condition}', async () => {
-  // Test implementation
-  //Step 1. Arrange
-  //Step 2. Act
-  //Step 3. Assert
 
   //Arrange
   const invalidInput = { /* invalid parameters */ };
@@ -182,11 +170,7 @@ describe('{Entity}', () => {
   });
 
   describe('{methodName}', () => {
-    it('should be {expected_behavior}', async () => {
-      // Test implementation
-      //Step 1. Arrange
-      //Step 2. Act
-      //Step 3. Assert
+    it('should be {expected_behavior}', async () => { 
 
       //Arrange
       const {entity} = Builder({Entity}).build();
@@ -201,6 +185,175 @@ describe('{Entity}', () => {
   });
 });
 ```
+#### unit test Delete template
+```typescript
+import { faker } from '@faker-js/faker';
+import { NotFoundException } from '@nestjs/common'; 
+import { UserId } from 'src/users/applications/domains/user.domain';
+import { vi } from 'vitest';
+import { mock } from 'vitest-mock-extended';
+import { {Entity}Id, I{Entity} } from '../domains/{entity}.domain';
+import { {Entity}Repository } from '../ports/{entity}.repository';
+import { {UseCaseClassName} } from './delete{Entity}ById.usecase';
+
+describe('{UseCaseClassName}', () => {
+  let useCase: {UseCaseClassName};
+  const {entity}Repository = mock<{Entity}Repository>();
+
+  beforeEach(() => {
+    useCase = new {UseCaseClassName}({entity}Repository);
+  });
+
+  afterEach(() => {
+    vi.resetAllMocks();
+  });
+
+  const {entity}Id = faker.string.uuid() as {Entity}Id; 
+  const userId = faker.string.uuid() as UserId;
+  it('should be throw error when {Entity} not found', async () => {
+    //Arrange
+    const errorExpected = new NotFoundException('{Entity} not found');
+    {entity}Repository.getByIdAndUserId.mockResolvedValue(undefined);
+
+    //Act
+    const promise = useCase.execute({ id: {entity}Id });
+
+    //Assert
+    await expect(promise).rejects.toThrow(errorExpected);
+    expect({entity}Repository.getByIdAndUserId).toHaveBeenCalledWith({ id: {entity}Id });
+    expect({entity}Repository.deleteByIdAndUserId).not.toHaveBeenCalled();
+  });
+
+  it('should be delete {entity}', async () => {
+    //Arrange
+    {entity}Repository.getByIdAndUserId.mockResolvedValue(mock<I{Entity}>({ uuid: {entity}Id }));
+    {entity}Repository.deleteByIdAndUserId.mockResolvedValue(undefined);
+
+    //Act
+    const actual = await useCase.execute({ id: {entity}Id, userId });
+    //Assert
+    expect(actual).toBeUndefined();
+    expect({entity}Repository.getByIdAndUserId).toHaveBeenCalledWith({ id: {entity}Id, userId });
+    expect({entity}Repository.deleteByIdAndUserId).toHaveBeenCalledWith({ id: {entity}Id, userId });
+  });
+});
+
+```
+
+### unit test getById  template
+```typescript
+import { faker } from '@faker-js/faker';
+import { NotFoundException } from '@nestjs/common'; 
+import { vi } from 'vitest';
+import { mock } from 'vitest-mock-extended';
+import { {Entity}Id, I{Entity} } from '../domains/{entity}.domain';
+import { {Entity}Repository } from '../ports/{entity}.repository';
+import { Get{Entity}ByIdUseCase } from './get{Entity}ById.usecase';
+import { UserId } from 'src/users/applications/domains/user.domain';
+
+describe('Get{Entity}ByIdUseCase', () => {
+  let useCase: Get{Entity}ByIdUseCase;
+  const {entity}Repository = mock<{Entity}Repository>();
+
+  beforeEach(() => {
+    useCase = new Get{Entity}ByIdUseCase({entity}Repository);
+  });
+
+  afterEach(() => {
+    vi.resetAllMocks();
+  });
+
+  const {entity}Id = faker.string.uuid() as {entity}Id; 
+  const userId = faker.string.uuid() as UserId;
+  it('should be throw error when {entity} not found', async () => {
+    //Arrange
+    {entity}Repository.getByIdAndUserId.mockResolvedValue(undefined);
+    const errorExpected = new NotFoundException('{Entity} not found');
+
+    //Act
+    const promise = useCase.execute({ id: {entity}Id, userId });
+
+    //Assert
+    await expect(promise).rejects.toThrow(errorExpected);
+    expect({entity}Repository.getByIdAndUserId).toHaveBeenCalledWith({ id: {entity}Id, userId });
+  });
+
+  it('should be get {entity} by id', async () => {
+    //Arrange
+    const {entity} = mock<I{Entity}e>({ uuid: {entity}Id });
+    {entity}Repository.getByIdAndUserId.mockResolvedValue({entity});
+
+    //Act
+    const actual = await useCase.execute({ id: {entity}Id, userId });
+    //Assert
+    expect(actual).toEqual({entity});
+    expect({entity}Repository.getByIdAndUserId).toHaveBeenCalledWith({ id: {entity}Id, userId });
+  });
+});
+
+```
+
+### unit test updateById  template
+```typescript
+import { faker } from '@faker-js/faker';
+import { NotFoundException } from '@nestjs/common';
+import { Builder } from 'builder-pattern';
+import { UserId } from 'src/users/applications/domains/user.domain';
+import { vi } from 'vitest';
+import { mock } from 'vitest-mock-extended';
+import { {Entity}Id, I{Entity} } from '../domains/{entity}.domain';
+import { {Entity}Repository } from '../ports/{entity}.repository';
+import { Update{Entity}ByIdUseCase } from './update{Entity}ById.usecase';
+
+describe('Update{Entity}ByIdUseCase ', () => {
+  let useCase: Update{Entity}ByIdUseCase ;
+  const {entity}Repository = mock<{entity}Repository>();
+
+  beforeEach(() => {
+    useCase = new Update{Entity}ByIdUseCase ({entity}Repository);
+  });
+
+  afterEach(() => {
+    vi.resetAllMocks();
+  });
+
+  const {entity}Id = faker.string.uuid() as {Entity}d;
+  const userId = faker.string.uuid() as UserId;
+  it('should be throw error when {entity} not found', async () => {
+    //Arrange
+    const command = mock<I{Entity}>({ uuid: {entity}Id, userId });
+    const errorExpected = new NotFoundException('{Entity} not found');
+    {entity}Repository.getByIdAndUserId.mockResolvedValue(undefined);
+
+    //Act
+    const promise = useCase.execute(command);
+
+    //Assert
+    await expect(promise).rejects.toThrow(errorExpected);
+    expect({entity}Repository.getByIdAndUserId).toHaveBeenCalledWith({ id: {entity}Id, userId });
+    expect({entity}Repository.updateByIdAndUserId).not.toHaveBeenCalled();
+  });
+
+  it('should be update {entity}', async () => {
+    //Arrange
+    const {entity} = mock<I{Entity}>({ uuid: {entity}Id, userId });
+    const command = Builder<I{Entity}>().uuid({entity}Id).userId(userId).build();
+    {entity}Repository.getByIdAndUserId.mockResolvedValue({entity});
+    {entity}Repository.updateByIdAndUserId.mockResolvedValue({entity});
+
+    //Act
+    const actual = await useCase.execute(command);
+
+    //Assert
+    expect(actual).toEqual({entity});
+    expect({entity}Repository.getByIdAndUserId).toHaveBeenCalledWith({ id: {entity}Id, userId });
+    expect({entity}Repository.updateByIdAndUserId).toHaveBeenCalledWith(command);
+  });
+});
+
+
+```
+
 
 ### 2. Domain Test Patterns
 
@@ -208,11 +361,7 @@ describe('{Entity}', () => {
 
 ```typescript
 describe('{businessMethod}', () => {
-  it('should be {success_case_description}', async () => {
-    // Test implementation
-    //Step 1. Arrange
-    //Step 2. Act
-    //Step 3. Assert
+  it('should be {success_case_description}', async () => { 
 
     //Arrange
     const {entity} = Builder({Entity}).{property}(validValue).build();
@@ -225,11 +374,7 @@ describe('{businessMethod}', () => {
     expect(result).toBe(expectedResult);
   });
 
-  it('should be {failure_case_description}', async () => {
-    // Test implementation
-    //Step 1. Arrange
-    //Step 2. Act
-    //Step 3. Assert
+  it('should be {failure_case_description}', async () => { 
 
     //Arrange
     const {entity} = Builder({Entity}).{property}(invalidValue).build();
@@ -245,11 +390,7 @@ describe('{businessMethod}', () => {
 
 ```typescript
 describe('{validationMethod}', () => {
-  it('should return true for valid {condition}', () => {
-    // Test implementation
-    //Step 1. Arrange
-    //Step 2. Act
-    //Step 3. Assert
+  it('should return true for valid {condition}', () => { 
 
     //Arrange
     const {entity} = Builder({Entity}).{property}(validValue).build();
@@ -261,11 +402,7 @@ describe('{validationMethod}', () => {
     expect(isValid).toBe(true);
   });
 
-  it('should return false for invalid {condition}', () => {
-    // Test implementation
-    //Step 1. Arrange
-    //Step 2. Act
-    //Step 3. Assert
+  it('should return false for invalid {condition}', () => { 
 
     //Arrange
     const {entity} = Builder({Entity}).{property}(invalidValue).build();
@@ -306,8 +443,8 @@ describe('{validationMethod}', () => {
 const id = faker.string.uuid() as {Entity}Id;
 const email = faker.internet.email() as UserEmail;
 const name = faker.person.fullName() as UserName;
-const amount = faker.number.float({ min: 0.01, max: 9999.99 }) as ExpenseAmount;
-const date = faker.date.recent() as ExpenseDate;
+const amount = faker.number.float({ min: 0.01, max: 9999.99 }) as {Entity}Amount;
+const date = faker.date.recent() as {Entity}Date;
 
 // Complex objects with Builder pattern
 const {entity} = Builder<I{Entity}>()
@@ -366,52 +503,50 @@ const mock{Entity} = mock<I{Entity}>({
 ```typescript
 import { faker } from '@faker-js/faker';
 import { NotFoundException } from '@nestjs/common';
-import { UserId } from 'src/users/applications/domains/user.domain';
 import { vi } from 'vitest';
 import { mock } from 'vitest-mock-extended';
-import { ExpenseId, IExpense } from '../domains/expense.domain';
-import { ExpenseRepository } from '../ports/expense.repository';
-import { GetExpenseByIdUseCase } from './getExpenseById.usecase';
+import { {Entity}Id, I{Entity} } from '../domains/{entity}.domain';
+import { {Entity}Repository } from '../ports/{entity}.repository';
+import { Get{Entity}ByIdUseCase } from './get{Entity}ById.usecase';
 
-describe('GetExpenseByIdUseCase', () => {
-  let useCase: GetExpenseByIdUseCase;
-  const expenseRepository = mock<ExpenseRepository>();
+describe('Get{Entity}ByIdUseCase', () => {
+  let useCase: Get{Entity}ByIdUseCase;
+  const {entity}Repository = mock<{Entity}Repository>();
 
   beforeEach(() => {
-    useCase = new GetExpenseByIdUseCase(expenseRepository);
+    useCase = new Get{Entity}ByIdUseCase({entity}Repository);
   });
 
   afterEach(() => {
     vi.resetAllMocks();
   });
 
-  const expenseId = faker.string.uuid() as ExpenseId;
-  const userId = faker.string.uuid() as UserId;
+  const {entity}Id = faker.string.uuid() as {entity}Id;
 
-  it('should be throw error when expense not found', async () => {
+  it('should be throw error when {entity} not found', async () => {
     // Arrange
-    expenseRepository.getByIdAndUserId.mockResolvedValue(undefined);
-    const errorExpected = new NotFoundException('Expense not found');
+    {entity}Repository.getByIdAndUserId.mockResolvedValue(undefined);
+    const errorExpected = new NotFoundException('{Entity} not found');
 
     // Act
-    const promise = useCase.execute({ id: expenseId, userId });
+    const promise = useCase.execute({ id: {entity}Id });
 
     // Assert
     await expect(promise).rejects.toThrow(errorExpected);
-    expect(expenseRepository.getByIdAndUserId).toHaveBeenCalledWith({ id: expenseId, userId });
+    expect({entity}Repository.getByIdAndUserId).toHaveBeenCalledWith({ id: {entity}Id  });
   });
 
-  it('should be get expense by id', async () => {
+  it('should be get {entity} by id', async () => {
     // Arrange
-    const expense = mock<IExpense>({ uuid: expenseId });
-    expenseRepository.getByIdAndUserId.mockResolvedValue(expense);
+    const {entity} = mock<I{Entity}>({ uuid: {entity}Id });
+    {entity}Repository.getByIdAndUserId.mockResolvedValue({entity});
 
     // Act
-    const actual = await useCase.execute({ id: expenseId, userId });
+    const actual = await useCase.execute({ id: {entity}Id, userId });
 
     // Assert
-    expect(actual).toEqual(expense);
-    expect(expenseRepository.getByIdAndUserId).toHaveBeenCalledWith({ id: expenseId, userId });
+    expect(actual).toEqual({entity});
+    expect({entity}Repository.getByIdAndUserId).toHaveBeenCalledWith({ id: {entity}Id, userId });
   });
 });
 ```
