@@ -191,34 +191,34 @@ Use the prettier-plugin-organize-imports to automatically organize imports:
 ```typescript
 import { Brand, CreatedAt, Status, UpdatedAt } from 'src/types/utility.type';
 
-export type ProductId = Brand<string, 'ProductId'>;
-export type ProductName = Brand<string, 'ProductName'>;
-export type ProductPrice = Brand<number, 'ProductPrice'>;
-export type ProductDescription = Brand<string, 'ProductDescription'>;
-export type ProductImage = Brand<string, 'ProductImage'>;
-export type ProductCreatedAt = Brand<CreatedAt, 'ProductCreatedAt'>;
-export type ProductUpdatedAt = Brand<UpdatedAt, 'ProductUpdatedAt'>;
+export type {Entity}Id = Brand<string, '{Entity}Id'>;
+export type {Entity}Name = Brand<string, '{Entity}Name'>;
+export type {Entity}Price = Brand<number, '{Entity}Price'>;
+export type {Entity}Description = Brand<string, '{Entity}Description'>;
+export type {Entity}Image = Brand<string, '{Entity}Image'>;
+export type {Entity}CreatedAt = Brand<CreatedAt, '{Entity}CreatedAt'>;
+export type {Entity}UpdatedAt = Brand<UpdatedAt, '{Entity}UpdatedAt'>;
 
-export interface IProduct {
-  uuid: ProductId;
-  name: ProductName;
-  price: ProductPrice;
-  description?: ProductDescription;
+export interface I{Entity} {
+  uuid: {Entity}Id;
+  name: {Entity}Name;
+  price: {Entity}Price;
+  description?: {Entity}Description;
   status: Status;
-  image?: ProductImage;
-  createdAt?: ProductCreatedAt;
-  updatedAt?: ProductUpdatedAt;
+  image?: {Entity}Image;
+  createdAt?: {Entity}CreatedAt;
+  updatedAt?: {Entity}UpdatedAt;
 }
 
-export class Product implements IProduct {
-  uuid: ProductId;
-  name: ProductName;
-  price: ProductPrice;
-  description?: ProductDescription;
+export class {Entity} implements I{Entity} {
+  uuid: {Entity}Id;
+  name: {Entity}Name;
+  price: {Entity}Price;
+  description?: {Entity}Description;
   status: Status;
-  image?: ProductImage;
-  createdAt?: ProductCreatedAt;
-  updatedAt?: ProductUpdatedAt;
+  image?: {Entity}Image;
+  createdAt?: {Entity}CreatedAt;
+  updatedAt?: {Entity}UpdatedAt;
 }
 ```
 
@@ -226,38 +226,38 @@ export class Product implements IProduct {
 
 ```typescript
 
-export const productTableName = 'products';
+export const {entity}TableName = '{entity}s';
 
 @Entity({
-  name: productTableName,
+  name: {entity}TableName,
 })
-export class ProductEntity {
+export class {Entity}Entity {
   @PrimaryColumn({
     type: 'uuid',
   })
-  uuid: ProductId;
+  uuid: {Entity}Id;
 
   @Column({
     type: 'varchar',
   })
-  name: ProductName;
+  name: {Entity}Name;
 
   @Column({
     type: 'float',
   })
-  price: ProductPrice;
+  price: {Entity}Price;
 
   @Column({
     type: 'varchar',
     nullable: true,
   })
-  description?: ProductDescription;
+  description?: {Entity}Description;
 
   @Column({
     type: 'varchar',
     nullable: true,
   })
-  image?: ProductImage;
+  image?: {Entity}Image;
 
   @Column({
     type: 'varchar',
@@ -266,10 +266,10 @@ export class ProductEntity {
   status: Status;
 
   @CreateDateColumn()
-  declare createdAt: ProductCreatedAt;
+  declare createdAt: {Entity}CreatedAt;
 
   @UpdateDateColumn()
-  declare updatedAt: ProductUpdatedAt;
+  declare updatedAt: {Entity}UpdatedAt;
 }
 ```
 
@@ -278,24 +278,24 @@ export class ProductEntity {
 
 // Port (Interface)
 import { GetAllMetaType, GetAllParamsType } from 'src/types/utility.type';
-import { IProduct, ProductId } from '../domains/product.domain';
+import { I{Entity}, {Entity}Id } from '../domains/{entity}.domain';
 
-export type CreateProductCommand = Omit<IProduct, 'uuid' | 'status' | 'createdAt' | 'updatedAt'>;
+export type Create{Entity}Command = Omit<I{Entity}, 'uuid' | 'status' | 'createdAt' | 'updatedAt'>;
 
 export interface GetAllReturnType {
-  result: IProduct[];
+  result: I{Entity}[];
   meta: GetAllMetaType;
 }
 
-const productRepositoryTokenSymbol: unique symbol = Symbol('ProductRepository');
-export const productRepositoryToken = productRepositoryTokenSymbol.toString();
+const {entity}RepositoryTokenSymbol: unique symbol = Symbol('{Entity}Repository');
+export const {entity}RepositoryToken = {entity}RepositoryTokenSymbol.toString();
 
-export interface ProductRepository {
-  create(product: CreateProductCommand): Promise<IProduct>;
-  deleteById(id: ProductId): Promise<void>;
+export interface {Entity}Repository {
+  create({entity}: Create{Entity}Command): Promise<I{Entity}>;
+  deleteById(id: {Entity}Id): Promise<void>;
   getAll(params: GetAllParamsType): Promise<GetAllReturnType>;
-  getById(id: ProductId): Promise<IProduct | undefined>;
-  updateById(id: ProductId, product: Partial<IProduct>): Promise<IProduct>;
+  getById(id: {Entity}Id): Promise<I{Entity} | undefined>;
+  updateById(id: {Entity}Id, {entity}: Partial<I{Entity}>): Promise<I{Entity}>;
 }
 
 // Adapter (Implementation)
