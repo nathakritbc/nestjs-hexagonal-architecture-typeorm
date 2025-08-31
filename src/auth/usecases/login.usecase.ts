@@ -1,14 +1,12 @@
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
-import type { UserPassword, UserUsername } from '../../users/applications/domains/user.domain';
+import { accessKeyToken } from 'src/configs/jwt.config';
+import type { IUser } from '../../users/applications/domains/user.domain';
 import type { UserRepository } from '../../users/applications/ports/user.repository';
 import { userRepositoryToken } from '../../users/applications/ports/user.repository';
 
-export interface LoginCommand {
-  username: UserUsername;
-  password: UserPassword;
-}
+export type LoginCommand = Pick<IUser, 'email' | 'password'>;
 
 @Injectable()
 export class LoginUseCase {
@@ -17,8 +15,9 @@ export class LoginUseCase {
     private readonly userRepository: UserRepository,
     private readonly jwtService: JwtService,
   ) {}
-  async execute({ username, password }: LoginCommand): Promise<string> {
-    const user = await this.userRepository.getByUsername(username);
+
+  async execute({ email, password }: LoginCommand): Promise<{ [accessKeyToken]: string }> {
+    const user = await this.userRepository.getByEmail(email);
 
     if (!user) {
       throw new UnauthorizedException('Invalid username or password.');
@@ -29,9 +28,13 @@ export class LoginUseCase {
       throw new UnauthorizedException('Invalid username or password.');
     }
 
-    return this.jwtService.sign({
-      sub: user.id,
-      username: user.username,
+    const token = this.jwtService.sign({
+      sub: user.uuid,
+      email: user.email,
     });
+
+    return {
+      [accessKeyToken]: token,
+    };
   }
 }

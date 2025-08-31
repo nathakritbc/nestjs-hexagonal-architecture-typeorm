@@ -1,12 +1,12 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { SwaggerModule } from '@nestjs/swagger';
 import { Logger } from 'nestjs-pino';
 import { AppModule } from './app.module';
-// import cookieParser from 'cookie-parser';
 import { port } from './configs/app.config';
+import { swaggerConfig } from './configs/swagger.config';
 
-const corsOrigins = ['http://localhost:7000'];
+const corsOrigins = ['*'];
 
 async function bootstrap() {
   // eslint-disable-next-line @typescript-eslint/await-thenable
@@ -38,27 +38,14 @@ function setupLogger(app: INestApplication): Logger {
 }
 
 function setupSwagger(app: INestApplication) {
-  const config = new DocumentBuilder()
-    .setTitle('Nest example API')
-    .setDescription('The Nest example API description')
-    .setVersion('1.0')
-    .addTag('Nest example')
-    .addBearerAuth({
-      type: 'http',
-      scheme: 'bearer',
-      bearerFormat: 'JWT',
-      description: 'Enter JWT token',
-    })
-    .build();
-
-  SwaggerModule.setup('api', app, () => SwaggerModule.createDocument(app, config));
+  SwaggerModule.setup('api', app, () => SwaggerModule.createDocument(app, swaggerConfig));
 }
 
 function setupPipes(app: INestApplication) {
   app.useGlobalPipes(
     new ValidationPipe({
-      transform: true, // เปิดใช้งานการแปลงข้อมูลอัตโนมัติ
-      whitelist: true, // ลบ properties ที่ไม่อยู่ใน DTO
+      transform: true,
+      whitelist: true,
       forbidNonWhitelisted: true,
     }),
   );

@@ -3,16 +3,14 @@ import { StrictBuilder } from 'builder-pattern';
 import { argon2Config } from 'src/configs/auth.config';
 import { Brand, CreatedAt, UpdatedAt } from 'src/types/utility.type';
 
-export type UserId = Brand<string, 'UserId'>;
-export type UserUsername = Brand<string, 'UserUsername'>;
-export type UserEmail = Brand<string, 'UserEmail'>;
-export type UserPassword = Brand<string, 'UserPassword'>;
 export type UserCreatedAt = Brand<CreatedAt, 'UserCreatedAt'>;
+export type UserEmail = Brand<string, 'UserEmail'>;
+export type UserId = Brand<string, 'UserId'>;
+export type UserPassword = Brand<string, 'UserPassword'>;
 export type UserUpdatedAt = Brand<UpdatedAt, 'UserUpdatedAt'>;
 
 export interface IUser {
-  id: UserId;
-  username: UserUsername;
+  uuid: UserId;
   password: UserPassword;
   email: UserEmail;
   createdAt?: UserCreatedAt;
@@ -24,8 +22,7 @@ export interface IUser {
 }
 
 export class User implements IUser {
-  id: UserId;
-  username: UserUsername;
+  uuid: UserId;
   password: UserPassword;
   email: UserEmail;
   createdAt?: UserCreatedAt;

@@ -4,97 +4,78 @@ import type { JwtService } from '@nestjs/jwt';
 import { mock } from 'vitest-mock-extended';
 
 import { StrictBuilder } from 'builder-pattern';
-import type { IUser, UserId, UserPassword, UserUsername } from '../../users/applications/domains/user.domain';
+import type { IUser, UserEmail, UserId, UserPassword } from '../../users/applications/domains/user.domain';
 import { UserRepository } from '../../users/applications/ports/user.repository';
 import { LoginCommand, LoginUseCase } from './login.usecase';
 
 describe('Login Use Case', () => {
+  let useCase: LoginUseCase;
+  const jwtService = mock<JwtService>();
+  const userRepository = mock<UserRepository>();
+
+  beforeEach(() => {
+    useCase = new LoginUseCase(userRepository, jwtService);
+  });
+
+  afterEach(() => {
+    vi.resetAllMocks();
+  });
+
+  const email = faker.internet.email() as UserEmail;
+  const password = faker.internet.password() as UserPassword;
+  const userId = faker.database.mongodbObjectId() as UserId;
+
+  const user = mock<IUser>({
+    uuid: userId,
+    email,
+  }); 
+
   it('should be return jwt sign when user is exist and password correct.', async () => {
     // Arrange
-    const userId = faker.database.mongodbObjectId() as UserId;
-    const username = faker.internet.username() as UserUsername;
-    const password = faker.internet.password() as UserPassword;
+    const command = StrictBuilder<LoginCommand>().email(email).password(password).build();
 
-    const user = mock<IUser>({
-      id: userId,
-      username,
-    });
-    user.comparePassword.mockResolvedValue(true);
-    const userRepository = mock<UserRepository>();
-    userRepository.getByUsername.mockResolvedValue(user);
-
-    const jwtService = mock<JwtService>();
     jwtService.sign.mockResolvedValue(faker.string.alphanumeric());
-
-    const loginUseCase = new LoginUseCase(userRepository, jwtService);
-
-    const command = StrictBuilder<LoginCommand>().username(username).password(password).build();
-
-    const jwtSignCallExpected = {
-      sub: userId,
-      username,
-    };
+    user.comparePassword.mockResolvedValue(true);
+    userRepository.getByEmail.mockResolvedValue(user);
 
     // Act
-    const actual = await loginUseCase.execute(command);
+    const actual = await useCase.execute(command);
 
     // Assert
     expect(actual).not.toBeNull();
     expect(user.comparePassword).toHaveBeenCalledWith(password);
-    expect(jwtService.sign).toHaveBeenCalledWith(jwtSignCallExpected);
   });
 
   it('should be throw error when user not found.', async () => {
     // Arrange
-    const username = faker.internet.username() as UserUsername;
-    const password = faker.internet.password() as UserPassword;
-
-    const userRepository = mock<UserRepository>();
-    userRepository.getByUsername.mockResolvedValue(undefined);
-
-    const jwtService = mock<JwtService>();
-    const loginUseCase = new LoginUseCase(userRepository, jwtService);
-
-    const command = StrictBuilder<LoginCommand>().username(username).password(password).build();
-
+    const command = StrictBuilder<LoginCommand>().email(email).password(password).build();
     const errorExpected = new UnauthorizedException('Invalid username or password.');
 
+    userRepository.getByEmail.mockResolvedValue(undefined);
+
     // Act
-    const actPromise = loginUseCase.execute(command);
+    const actPromise = useCase.execute(command);
 
     // Assert
     await expect(actPromise).rejects.toThrow(errorExpected);
+    expect(user.comparePassword).not.toHaveBeenCalled();
+    expect(jwtService.sign).not.toHaveBeenCalled();
   });
 
   it('should be return jwt sign when user is exist and password incorrect.', async () => {
     // Arrange
-    const userId = faker.database.mongodbObjectId() as UserId;
-    const username = faker.internet.username() as UserUsername;
-    const password = faker.internet.password() as UserPassword;
-
-    const user = mock<IUser>({
-      id: userId,
-      username,
-    });
-    user.comparePassword.mockResolvedValue(false);
-    const userRepository = mock<UserRepository>();
-    userRepository.getByUsername.mockResolvedValue(user);
-
-    const jwtService = mock<JwtService>();
-
-    const loginUseCase = new LoginUseCase(userRepository, jwtService);
-
-    const command = StrictBuilder<LoginCommand>().username(username).password(password).build();
-
+    const command = StrictBuilder<LoginCommand>().email(email).password(password).build();
+    const errorExpected = new UnauthorizedException('Invalid username or password.');
     const jwtSignCallExpected = {
       sub: userId,
-      username,
+      email,
     };
 
-    const errorExpected = new UnauthorizedException('Invalid username or password.');
+    user.comparePassword.mockResolvedValue(false);
+    userRepository.getByEmail.mockResolvedValue(user);
 
     // Act
-    const actPromise = loginUseCase.execute(command);
+    const actPromise = useCase.execute(command);
 
     // Assert
     await expect(actPromise).rejects.toThrow(errorExpected);

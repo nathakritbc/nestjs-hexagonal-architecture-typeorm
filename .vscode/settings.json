@@ -5,7 +5,7 @@
     },
     "local": {
       "useShare": "{{$shared somethingShare}}",
-      "host": "http://localhost:7000"
+      "host": "http://localhost:9009"
     },
     "develop": {
       "host": "https://api-test.ex1app.com"

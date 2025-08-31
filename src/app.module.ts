@@ -9,8 +9,8 @@ import { httpConfig } from './configs/http.config';
 import { loggerConfig } from './configs/logger.config';
 import { typeormRootConfig } from './configs/typeorm.config';
 import { DatabaseModule } from './databases/database.module';
-import { PostsModule } from './posts/posts.module';
-import { ProductModule } from './products/product.module';
+import { ExpensesModule } from './expenses/expenses.module';
+import { HealthModule } from './health/health.module';
 import { UserModule } from './users/user.module';
 
 @Module({
@@ -21,8 +21,8 @@ import { UserModule } from './users/user.module';
     LoggerModule.forRoot(loggerConfig),
     AuthModule,
     DatabaseModule,
-    PostsModule,
-    ProductModule,
+    ExpensesModule,
+    HealthModule,
     UserModule,
   ],
   controllers: [],

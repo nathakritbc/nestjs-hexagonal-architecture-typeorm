@@ -8,6 +8,7 @@ import { userRepositoryToken } from '../users/applications/ports/user.repository
 import { AuthController } from './adapters/inbounds/auth.controller';
 import { JwtStrategy } from './jwtStrategy';
 import { LoginUseCase } from './usecases/login.usecase';
+import { RegisterUseCase } from './usecases/register.usecase';
 
 @Module({
   imports: [JwtModule.register({ secret: jwtSecret, signOptions: { expiresIn: jwtExpiresIn } }), PassportModule],
@@ -15,6 +16,7 @@ import { LoginUseCase } from './usecases/login.usecase';
   providers: [
     JwtStrategy,
     LoginUseCase,
+    RegisterUseCase,
     {
       provide: userRepositoryToken,
       useClass: UserTypeOrmRepository,

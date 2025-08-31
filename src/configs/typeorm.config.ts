@@ -17,7 +17,11 @@ const typeOrmDatabaseConfig = StrictBuilder<PostgresConnectionOptions>()
   .password(process.env.DB_PASSWORD || '')
   .database(process.env.DB_DATABASE || 'nestjs-hexagonal-architecture-typeorm')
   .entities([__dirname + '/../**/*.entity{.ts,.js}'])
-  .synchronize(true)
+  .synchronize(false)
+  .logging(true)
+  .migrations([__dirname + '/../databases/migrations/*{.ts,.js}'])
+  .migrationsTableName('migrations_history')
+  .migrationsRun(false)
   .build();
 
 const imports = [DatabaseModule];

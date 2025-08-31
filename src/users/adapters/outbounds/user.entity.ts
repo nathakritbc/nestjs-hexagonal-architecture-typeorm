@@ -1,11 +1,11 @@
-import { Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn } from 'typeorm';
+import { ExpenseEntity } from 'src/expenses/adapters/outbounds/expense.entity';
+import { Column, CreateDateColumn, Entity, OneToMany, PrimaryColumn, UpdateDateColumn } from 'typeorm';
 import type {
   UserCreatedAt,
   UserEmail,
   UserId,
   UserPassword,
   UserUpdatedAt,
-  UserUsername,
 } from '../../applications/domains/user.domain';
 
 export const usersTableName = 'users';
@@ -23,18 +23,15 @@ export class UserEntity {
     type: 'varchar',
     unique: true,
   })
-  username: UserUsername;
-
-  @Column({
-    type: 'varchar',
-    unique: true,
-  })
   email: UserEmail;
 
   @Column({
     type: 'text',
   })
   password: UserPassword;
+
+  @OneToMany('ExpenseEntity', 'user')
+  expenses: ExpenseEntity[];
 
   @CreateDateColumn()
   declare createdAt: UserCreatedAt;
