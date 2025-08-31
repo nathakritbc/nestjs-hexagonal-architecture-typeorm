@@ -234,6 +234,8 @@ export const {entity}TableName = '{entity}s';
 export class {Entity}Entity {
   @PrimaryColumn({
     type: 'uuid',
+    name: 'uuid',
+    default: 'gen_random_uuid()',
   })
   uuid: {Entity}Id;
 
