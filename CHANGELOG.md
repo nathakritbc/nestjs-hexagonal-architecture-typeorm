@@ -2,6 +2,34 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## 1.0.0 (2025-09-02)
+
+### Features
+
+*  🎸 add comprehensive module creation documentation ([766adb1](https://github.com/nathakritbc/nestjs-hexagonal-architecture-typeorm/commit/766adb1577a69c60a3b27a93356625993a39ccf6))
+* 🎸 add AI specification and module template documentation ([f6a11da](https://github.com/nathakritbc/nestjs-hexagonal-architecture-typeorm/commit/f6a11da2f028538fd896ff3d9127bff387c90128))
+* 🎸 add authentication and product management features ([4910974](https://github.com/nathakritbc/nestjs-hexagonal-architecture-typeorm/commit/4910974072e1df6296dfd268e5ce9c8e203c56bd))
+* 🎸 add unit test templates for CRUD operations on entities ([ff6e7df](https://github.com/nathakritbc/nestjs-hexagonal-architecture-typeorm/commit/ff6e7dff14c8e75562cd961d4bed4d23042628cd))
+* 🎸 create 'orders' module for managing purchase orders ([00d7d68](https://github.com/nathakritbc/nestjs-hexagonal-architecture-typeorm/commit/00d7d68945701c4f9ccb254528625070ae3c8afd))
+* 🎸 enhance entity UUID handling in specifications ([3e2ea31](https://github.com/nathakritbc/nestjs-hexagonal-architecture-typeorm/commit/3e2ea31fe8cbaadf7288b2f0541e156d08626eb9))
+* 🎸 enhance product controller and use case for improved data retrieval ([0ad0f25](https://github.com/nathakritbc/nestjs-hexagonal-architecture-typeorm/commit/0ad0f25707ffe8fbbc2062dbf10abe1826457e52))
+* 🎸 enhance product repository with pagination and search capabilities ([c555e64](https://github.com/nathakritbc/nestjs-hexagonal-architecture-typeorm/commit/c555e6449e29737bffef6f55a78a010f7b098d24))
+* 🎸 first commit ([9b485d2](https://github.com/nathakritbc/nestjs-hexagonal-architecture-typeorm/commit/9b485d269ff0464a0dc7b8f94b43fa835adff455))
+* 🎸 implement posts module for blog management ([b9c2760](https://github.com/nathakritbc/nestjs-hexagonal-architecture-typeorm/commit/b9c2760db78551aa97dfe589ad0227e3097b42b5))
+* 🎸 implement product domain and repository patterns ([975470b](https://github.com/nathakritbc/nestjs-hexagonal-architecture-typeorm/commit/975470b517e02114acf1ff9f0c340ac1b916192e))
+* 🎸 initialize project structure with essential configurations and modules ([4fc206d](https://github.com/nathakritbc/nestjs-hexagonal-architecture-typeorm/commit/4fc206d1c0319ead42d648c2e4e47a6ec06f39dc))
+* 🎸 refactor user and product modules to use TypeORM repository ([edbe578](https://github.com/nathakritbc/nestjs-hexagonal-architecture-typeorm/commit/edbe578bce56fecec4a6a69f6aeee85225e513cf))
+
+### Bug Fixes
+
+* 🐛 correct test suite description for delete expense use case ([269c485](https://github.com/nathakritbc/nestjs-hexagonal-architecture-typeorm/commit/269c485665711432038c61c5b860a85d7a597da0))
+* 🐛 update imports in ai-module-template-spec.md to use 'type' for type-only imports ([ddb153e](https://github.com/nathakritbc/nestjs-hexagonal-architecture-typeorm/commit/ddb153e9b7db9909c141cddf3119c18698ff7cd0))
+
+### Code Refactoring
+
+* 💡 generalize entity handling across modules for improved consistency ([a71c718](https://github.com/nathakritbc/nestjs-hexagonal-architecture-typeorm/commit/a71c718c9925775d169e6d2d7744eb0b6ea99074))
+* 💡 generalize entity types and interfaces for improved reusability ([eed1230](https://github.com/nathakritbc/nestjs-hexagonal-architecture-typeorm/commit/eed123029410c2c03a6d913913465efa45f16097))
+
 ## [1.2.2](https://github.com/nathakritbc/expense_tracker_api/compare/v1.2.1...v1.2.2) (2025-08-29)
 
 ### Bug Fixes
