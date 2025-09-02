@@ -721,6 +721,68 @@ PORT=9009
 
 For detailed Docker deployment instructions, see [README-Docker.md](README-Docker.md).
 
+## ☸️ Kubernetes Deployment
+
+This repo now includes a minimal Kubernetes setup in `k8s/` suitable for production-like deployments. It deploys the API, a ClusterIP Service, and optional Postgres via StatefulSet, plus an example Ingress.
+
+### Prerequisites
+- A Kubernetes cluster and `kubectl` configured
+- A container registry to push your API image
+- Optional: Ingress controller (e.g., NGINX Ingress) if using `k8s/ingress.yaml`
+
+### 1) Build and push the image
+```bash
+# Build
+docker build -t <registry>/expense-tracker-api:<tag> .
+
+# Push
+docker push <registry>/expense-tracker-api:<tag>
+```
+
+Update the image in `k8s/deployment.yaml` at `spec.template.spec.containers[0].image`.
+
+### 2) Apply base manifests
+```bash
+kubectl apply -f k8s/namespace.yaml
+kubectl apply -f k8s/configmap.yaml
+kubectl apply -f k8s/secret.yaml
+kubectl apply -f k8s/deployment.yaml
+kubectl apply -f k8s/service.yaml
+```
+
+By default, the app expects Postgres host `postgres` in the same namespace. You have two options:
+
+#### Option A: Use managed/external Postgres (recommended)
+- Edit `k8s/secret.yaml` and set `DB_HOST`, `DB_PORT`, `DB_USERNAME`, `DB_PASSWORD`, `DB_DATABASE` to your external DB
+- Apply: `kubectl apply -f k8s/secret.yaml -n expense-tracker`
+
+#### Option B: Run Postgres in-cluster
+```bash
+kubectl apply -f k8s/postgres.yaml
+```
+
+This creates a `StatefulSet` with a 5Gi PVC. Adjust storage class and size as needed.
+
+### 3) (Optional) Ingress
+Edit host in `k8s/ingress.yaml` and apply:
+```bash
+kubectl apply -f k8s/ingress.yaml
+```
+
+### 4) Verify
+```bash
+kubectl get pods -n expense-tracker
+kubectl logs -n expense-tracker deploy/expense-tracker-api
+kubectl port-forward -n expense-tracker svc/expense-tracker-api 9009:80
+```
+Visit `http://localhost:9009/health`.
+
+### Notes
+- Health probes use `/health` on port 9009.
+- Logging/telemetry include k8s metadata via env (`POD_NAME`, `POD_NAMESPACE`, `NODE_NAME`).
+- To enable OTLP export, set `OTLP_EXPORTER_URL` in `k8s/configmap.yaml` to your collector endpoint.
+
+
 ## 📝 Release Management
 
 This project uses [Semantic Release](https://semantic-release.gitbook.io/) for automated versioning and changelog generation.
