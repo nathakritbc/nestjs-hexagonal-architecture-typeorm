@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.1.0](https://github.com/nathakritbc/nestjs-hexagonal-architecture-typeorm/compare/v1.0.0...v1.1.0) (2025-09-02)
+
+### Features
+
+* 🎸 add Kubernetes deployment configuration ([17e84b0](https://github.com/nathakritbc/nestjs-hexagonal-architecture-typeorm/commit/17e84b0804a5ca0fd8b186dbe10cac928a67d5be))
+
 ## 1.0.0 (2025-09-02)
 
 ### Features
