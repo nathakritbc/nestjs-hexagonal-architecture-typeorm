@@ -154,25 +154,55 @@ describe('{ENTITY_NAME}Domain', () => {
 #### Repository Interface Template (`{ENTITY_NAME}.repository.ts`)
 
 ```typescript
-import type { {ENTITY_NAME},{ENTITY_NAME}Id } from '../domains/{ENTITY_NAME}.domain';
+import { GetAllMetaType, GetAllParamsType } from 'src/types/utility.type';
+import { {Entity}Id, I{Entity} } from '../domains/expense.domain';
 
-export type Create{ENTITY_NAME}Command = Omit<I{ENTITY_NAME}, 'uuid' | 'createdAt' | 'updatedAt'>;
+export type UpdateExpenseCommand = Partial<Omit<I{Entity}, 'uuid' 'createdAt' | 'updatedAt'>>;
 
-export interface GetAllReturnType {
-  result: I{ENTITY_NAME}[];
+export interface GetAll{Entity}Query extends GetAllParamsType {
+  category?: string;
+  startDate?: Date;
+  endDate?: Date;
+}
+
+export interface GetAll{Entity}ReturnType {
+  result: I{Entity}[];
   meta: GetAllMetaType;
 }
 
-export interface {ENTITY_NAME}Repository {
-  create(entity: I{ENTITY_NAME}): Promise<I{ENTITY_NAME}>;
-  getById(id: {ENTITY_NAME}Id): Promise<{ENTITY_NAME}Domain | undefined>;
-  getAll(params: GetAllParamsType): Promise<GetAllReturnType>;
-  update(id: {ENTITY_NAME}Id, entity: Partial<I{ENTITY_NAME}>): Promise<I{ENTITY_NAME}>;
-  deleteById(id: {ENTITY_NAME}Id): Promise<void>;
-
-  // Add custom query methods as needed
-  // getBySpecificCriteria(criteria: ICriteriaType): Promise<I{ENTITY_NAME}[]>;
+export interface {Entity}ByCategory {
+  category: string;
+  total: number;
+  count: number;
 }
+
+export interface GetExpenseReportQuery {
+  startDate?: Date;
+  endDate?: Date;
+}
+
+export interface ExpenseReportReturnType {
+  totalAmount: number;
+  total{Entity}: number;
+  categories: {Entity}ByCategory[];
+  dateRange: {
+    startDate?: Date;
+    endDate?: Date;
+  };
+}
+
+const expenseRepositoryTokenSymbol: unique symbol = Symbol('ExpenseRepository');
+export const expenseRepositoryToken = expenseRepositoryTokenSymbol.toString();
+
+export interface ExpenseRepository {
+  create(expense: I{Entity}): Promise<I{Entity}>;
+  deleteById({ id }: { id: {Entity}Id }): Promise<void>;
+  getAll(params: GetAll{Entity}Query): Promise<GetAll{Entity}ReturnType>;
+  getById({ id }: { id: {Entity}Id }): Promise<I{Entity} | undefined>;
+  getExpenseReport(query: GetExpenseReportQuery): Promise<ExpenseReportReturnType>;
+  updateById(expense: I{Entity}): Promise<I{Entity}>;
+}
+
 ```
 
 ### Step 3: Use Cases Layer
