@@ -12,6 +12,13 @@ This specification provides guidelines for writing comprehensive unit tests for 
 - **Object Building**: `builder-pattern` for creating test objects
 - **Assertions**: Vitest's built-in `expect` assertions
 
+### Construction & Type Rules (for tests)
+
+- Use `builder-pattern` to construct objects; avoid inline object literals for domain/interface instances.
+  - Example: `const todo = Builder<ITodo>().id(1).title('todo1').build();`
+- Do not use the spread operator `...` when creating test objects or arrays.
+- Do not use `any`; prefer precise types or generics. Use `unknown` with type narrowing if necessary.
+
 ### Test File Naming Convention
 
 - UseCase tests: `{operation}{Entity}.usecase.spec.ts`

@@ -48,9 +48,33 @@ src/{MODULE_NAME}/
 └── {MODULE_NAME}.module.ts
 ```
 
-### Note Generate {ENTITY_NAME}.domain.spec.ts only if the domain contains methods If the domain has no methods, do not create this file
+### Note
+- Generate `{ENTITY_NAME}.domain.spec.ts` only if the domain contains methods. If the domain has no methods, do not create this file.
+
+## TDD-First Workflow
+- Write UseCase tests first following `docs/ai-specs/unit-test-spec.md`.
+- Keep repository dependencies mocked; do not touch adapters yet.
+- Make the failing tests pass with minimal UseCase code, then refactor.
+- Add Domain tests only when adding domain methods with business logic.
+- Commands:
+  - `pnpm test:watch` to run continuously
+  - `pnpm test {file}` to run a specific spec
+  - `pnpm test:cov` to verify coverage
+
+## Coding Rules
+- Object construction: Use `builder-pattern` instead of object literals for creating and returning objects.
+  - Example (assignment):
+    `const todo = Builder<ITodo>().id(1).title('todo1').build();`
+  - Example (return):
+    `return Builder<ITodo>().id(1).title('todo1').build();`
+- No spread operator `...` (objects or arrays). Prefer explicit fields or Builder chaining.
+- No `any` type. Use exact interfaces, generics, or `unknown` with narrowing.
 
 ## Implementation Steps
+
+### Step 0: Write Tests First (UseCases)
+
+Create failing tests for the planned UseCases using the templates in `docs/ai-specs/unit-test-spec.md`. Focus on happy paths and error scenarios (e.g., not found, validation errors). Only add Domain tests if you introduce domain methods.
 
 ### Step 1: Domain Layer (Core Business Logic)
 
@@ -230,30 +254,21 @@ export class Delete{ENTITY_NAME}ByIdUseCase {
 }
 ```
 
-### Step 4: Test Layer "Test only .usecase.ts files"
+### Step 3.1: Keep Tests Green (TDD)
 
-> **Reference**: For comprehensive unit testing guidelines, see `src/ai-spec/unit-test-spec.md`
+- Reference: `docs/ai-specs/unit-test-spec.md` for comprehensive testing guidelines.
+- Required UseCase test files:
+  - `create{ENTITY_NAME}.usecase.spec.ts`
+  - `get{ENTITY_NAME}ById.usecase.spec.ts`
+  - `getAll{ENTITY_NAME}s.usecase.spec.ts`
+  - `update{ENTITY_NAME}ById.usecase.spec.ts`
+  - `delete{ENTITY_NAME}ById.usecase.spec.ts`
+- Each test should target 100% coverage for the UseCase:
+  - Happy paths and error conditions (e.g., NotFoundException, ValidationException)
+  - Explicit mock verification for repository interactions
+  - Follow AAA: Arrange, Act, Assert
 
-#### All UseCase Test Files
-
-**📋 For complete test templates and patterns**: Follow `src/ai-spec/unit-test-spec.md`
-
-**Required test files**:
-
-- `create{ENTITY_NAME}.usecase.spec.ts`
-- `get{ENTITY_NAME}ById.usecase.spec.ts`
-- `getAll{ENTITY_NAME}s.usecase.spec.ts`
-- `update{ENTITY_NAME}ById.usecase.spec.ts`
-- `delete{ENTITY_NAME}ById.usecase.spec.ts`
-
-**Each test must achieve 100% coverage** following the patterns in `unit-test-spec.md`:
-
-- Happy path scenarios
-- Error conditions (NotFoundException, ValidationException, etc.)
-- Mock verification for all repository interactions
-- Proper AAA pattern with Step 1. Arrange / Step 2. Act / Step 3. Assert comments
-
-### Step 5: Outbound Adapters (Database Layer)
+### Step 4: Outbound Adapters (Database Layer)
 
 #### TypeORM Entity Template (`{ENTITY_NAME}.entity.ts`)
 
@@ -309,9 +324,9 @@ export class {ENTITY_NAME}Entity {
 }
 ```
 
-### Step 5.1: Create Migration โดย ดูจาก Entity
+### Step 4.1: Create Migration โดย ดูจาก Entity
 
-> **📋 For comprehensive migration guidelines and templates**: See `ai-migration-spec.md` for detailed migration specifications, naming conventions, and best practices.
+> **📋 For comprehensive migration guidelines and templates**: See `docs/ai-specs/ai-migration-spec.md` for detailed migration specifications, naming conventions, and best practices.
 
 **Migration Creation Process:**
 
@@ -321,7 +336,7 @@ pnpm run migration:create -- --name=Create{ENTITY_NAME}Table
 ```
 
 #### Step 2: Define Migration Code Following Template
-Use the migration template from `src/ai-spec/ai-migration-spec.md` to implement the `up()` and `down()` methods. The complete template includes:
+Use the migration template from `docs/ai-specs/ai-migration-spec.md` to implement the `up()` and `down()` methods. The complete template includes:
 
 - Table creation with all necessary columns
 - Proper column types matching Entity decorators
@@ -466,7 +481,7 @@ export class {ENTITY_NAME}TypeOrmRepository implements {ENTITY_NAME}Repository {
 }
 ```
 
-### Step 6: Inbound Adapters (API Layer)
+### Step 5: Inbound Adapters (API Layer)
 
 #### DTO Templates
 
@@ -766,7 +781,7 @@ authorization: Bearer {{myAccessToken}}
 
 ```
 
-### Step 7: Module Configuration
+### Step 6: Module Configuration
 
 #### Module Template (`{MODULE_NAME}.module.ts`)
 
@@ -834,7 +849,7 @@ export class AppModule {}
 
 ## Testing Strategy
 
-> **📋 For detailed unit testing specifications**: See `src/ai-spec/unit-test-spec.md` for comprehensive testing guidelines including 100% coverage patterns, mock strategies, and complete examples.
+> **📋 For detailed unit testing specifications**: See `docs/ai-specs/unit-test-spec.md` for comprehensive testing guidelines including 100% coverage patterns, mock strategies, and complete examples.
 
 ### Test Coverage Requirements
 

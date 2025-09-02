@@ -38,7 +38,7 @@
 - Code templates for all layers
 - Testing strategy and checklist
 
-### 3. `src/ai-spec/unit-test-spec.md`
+### 3. `docs/ai-specs/unit-test-spec.md`
 
 **Purpose**: Comprehensive specification for writing unit tests with 100% coverage for UseCase and Domain classes.
 
@@ -63,7 +63,7 @@
 
 1. **Always read the main spec first** (`ai-agent-spec.md`) to understand the project context
 2. **Use the module template** (`ai-module-template-spec.md`) when creating new modules
-3. **Use the unit test spec** (`src/ai-spec/unit-test-spec.md`) when writing tests for UseCases and Domains
+3. **Use the unit test spec** (`docs/ai-specs/unit-test-spec.md`) when writing tests for UseCases and Domains
 4. **Follow the established patterns** rather than creating new ones
 5. **Maintain consistency** with existing code style and architecture
 
@@ -84,7 +84,7 @@ When creating a new module (example: "Orders"), follow these steps:
    - `{MODULE_NAME}` → `orders`
    - `{ENTITY_NAME}` → `Order`
 3. **Follow the implementation steps** in the exact order specified
-4. **Write comprehensive unit tests** using `src/ai-spec/unit-test-spec.md` for UseCases and Domain classes
+4. **Write comprehensive unit tests** using `docs/ai-specs/unit-test-spec.md` for UseCases and Domain classes
 5. **Use the final checklist** to ensure completion
 6. **Run quality verification commands** before considering the module complete
 
@@ -125,6 +125,14 @@ pnpm format           # Format code
 pnpm migration:generate -- --name=CreateSomethingTable
 pnpm migration:run
 ```
+
+## TDD Workflow
+
+- Write UseCase tests first using patterns from `docs/ai-specs/unit-test-spec.md`.
+- Run tests in watch mode: `pnpm test:watch` and ensure they fail initially (Red).
+- Implement minimal UseCase logic to make tests pass (Green).
+- Refactor while keeping tests green; add Domain tests only when adding domain methods.
+- After UseCases are green, implement adapters (entities/repositories) and controllers; then add integration/E2E tests.
 
 ## Examples
 

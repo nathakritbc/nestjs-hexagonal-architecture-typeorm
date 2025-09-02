@@ -114,6 +114,19 @@ Use the prettier-plugin-organize-imports to automatically organize imports:
 - Apply `class-transformer` for data transformation
 - Enable global validation pipe with whitelist and transform options
 
+#### Object Construction & Types
+- Use `builder-pattern` for constructing objects instead of object literals.
+  - Example (assignment):
+    - BAD: `const todo: ITodo = { id: 1, title: 'todo1' }`
+    - GOOD:
+      `const todo = Builder<ITodo>().id(1).title('todo1').build();`
+  - Example (return):
+    - BAD: `return { id: 1, title: 'todo1' } as ITodo;`
+    - GOOD:
+      `return Builder<ITodo>().id(1).title('todo1').build();`
+- Do not use the spread operator `...` (objects or arrays). Prefer explicit fields or Builder chaining.
+- Do not use `any`. Use precise types, generics, `unknown` with narrowing, or branded types as appropriate.
+
 ### Database & Entity Guidelines
 - Use TypeORM decorators for entity mapping
 - Follow repository pattern with clear interfaces
@@ -128,6 +141,13 @@ Use the prettier-plugin-organize-imports to automatically organize imports:
 - Use Vitest as the testing framework
 - Mock external dependencies properly
 - Achieve good test coverage (aim for >80%)
+
+### TDD Workflow
+- Red → Green → Refactor: write a failing test first, make it pass with minimal code, then refactor safely.
+- Start with UseCase specs in `applications/usecases` before implementing the UseCase.
+- Add Domain specs in `applications/domains` only when the domain contains business methods.
+- Keep tests focused (AAA: Arrange, Act, Assert) and independent from infrastructure.
+- Run tests continuously with `pnpm test:watch`; check coverage with `pnpm test:cov`.
 
 ### Authentication & Authorization
 - Use JWT tokens with Passport.js strategy
@@ -161,13 +181,13 @@ Use the prettier-plugin-organize-imports to automatically organize imports:
 
 ## Development Workflow
 
-### Adding New Features
+### Adding New Features (TDD-First)
 1. Define domain requirements
-2. Create domain entities with business rules
-3. Write domain tests
-4. Implement use cases
-5. Write use case tests
-6. Create adapter implementations
+2. Write UseCase tests first (failing) using patterns from `docs/ai-specs/unit-test-spec.md`
+3. Implement minimal UseCase logic to pass tests
+4. Add/adjust Domain with business rules if needed, and write Domain tests for methods
+5. Refactor code keeping tests green
+6. Implement adapters (entities/repositories)
 7. Add API endpoints with proper validation
 8. Update Swagger documentation
 9. Add integration/E2E tests
@@ -184,7 +204,7 @@ Use the prettier-plugin-organize-imports to automatically organize imports:
 - Create TypeORM migrations for schema changes
 - Test migrations in development environment
 - Apply migrations in production safely
-- **Migration Templates**: Use the standardized migration templates from [`src/ai-spec/ai-migration-spec.md`](./src/ai-spec/ai-migration-spec.md) for consistent database schema management
+- **Migration Templates**: Use the standardized migration templates from `docs/ai-specs/ai-migration-spec.md` for consistent database schema management
 
 ## Common Patterns & Examples
 

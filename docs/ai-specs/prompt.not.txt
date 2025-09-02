@@ -1,0 +1,10 @@
+เขียน rule ของ ai pec เพิ่มให้หน่อย คือ   ถ้ามีการใช้งาน สร้าง return หรืออื่นๆ ของ object {}   เช่น  const todo : Itodo = { id:1,title : "todo1" }  ให้เปลี่ยนไปใช้ buildder   เป็น  const todo = Builder<ITodo>()
+  .id(1)
+  .title("todo1")
+  .build();  เเทน  ถ้า return ก็  return   Builder<ITodo>()
+  .id(1)
+  .title("todo1")
+  .build();
+
+
+  เเละ เพิ่มกฎ ไม่ให้ใช้ spread operator  ... ไม่ให้ใช้ any type
