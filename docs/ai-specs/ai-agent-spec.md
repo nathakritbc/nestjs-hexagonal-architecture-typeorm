@@ -133,6 +133,11 @@ Use the prettier-plugin-organize-imports to automatically organize imports:
 - Implement proper transaction management using @nestjs-cls/transactional
 - Use UUID for primary keys when appropriate
 - Apply proper indexing strategies
+- **Migration Naming**: Use timestamp-based naming (e.g., `1756391900904-CreatePostsTable.ts`)
+- **Column Types**: Always specify proper types with constraints (`varchar(length)`, `text`, `decimal(precision, scale)`)
+- **Indexes**: Create indexes for foreign keys, search fields, and frequently queried columns
+- **Constraints**: Use proper `isNullable`, `isUnique`, and `default` values
+- **Rollback**: Implement proper rollback logic in migration `down()` method
 
 ### Testing Standards
 - **Unit Tests**: Test business logic in isolation
@@ -200,11 +205,23 @@ Use the prettier-plugin-organize-imports to automatically organize imports:
 - Run `pnpm test:e2e` for end-to-end tests
 - Use Prettier for code formatting
 
+### Database Migration Commands
+- `pnpm run migration:create -- src/databases/migrations/Create{Entity}Table` - Create empty migration
+- `pnpm run migration:generate -- --name=Create{Entity}Table` - Generate from entity changes
+- `pnpm run migration:run` - Apply pending migrations
+- `pnpm run migration:revert` - Rollback last migration
+- `pnpm run migration:show` - Show migration status
+- `pnpm run db:status` - Check database connection and migration status
+
 ### Database Migrations
 - Create TypeORM migrations for schema changes
 - Test migrations in development environment
 - Apply migrations in production safely
 - **Migration Templates**: Use the standardized migration templates from `docs/ai-specs/ai-migration-spec.md` for consistent database schema management
+- **Migration Naming**: Follow timestamp-based naming convention (e.g., `1756391900904-CreatePostsTable.ts`)
+- **Column Constraints**: Always specify proper types, lengths, and constraints
+- **Performance**: Add appropriate indexes for query optimization
+- **Rollback Safety**: Ensure `down()` method properly reverses all changes
 
 ## Common Patterns & Examples
 
