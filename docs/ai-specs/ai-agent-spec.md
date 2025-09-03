@@ -344,16 +344,13 @@ import {
   {Entity}Repository,
 } from 'src/{entity}s/applications/ports/{entity}.repository';
 import { GetAllMetaType, GetAllParamsType, type Status } from 'src/types/utility.type';
-import { v4 as uuidv4 } from 'uuid';
 import { {Entity}Entity } from './{entity}.entity';
 @Injectable()
 export class {Entity}TypeOrmRepository implements {Entity}Repository {
   constructor(private readonly {entity}Model: TransactionHost<TransactionalAdapterTypeOrm>) {}
 
   async create({entity}: Create{Entity}Command): Promise<I{Entity}> {
-    const uuid = uuidv4() as {Entity}Id;
     const resultCreated = await this.{entity}Model.tx.getRepository({Entity}Entity).save({
-      uuid: uuid,
       name: {entity}.name,
       price: {entity}.price,
       description: {entity}.description,
@@ -366,34 +363,67 @@ export class {Entity}TypeOrmRepository implements {Entity}Repository {
     await this.{entity}Model.tx.getRepository({Entity}Entity).delete({ uuid: id });
   }
 
-  async getAll(params: GetAllParamsType): Promise<GetAllReturnType> {
-    const { search, sort, order, page, limit } = params;
+  async getAll(params: GetAll{Entity}Query): Promise<GetAll{Entity}ReturnType> {
+    const { search, sort, order, page, limit, userId, category, startDate, endDate } = params;
 
     const currentPage = page ?? 1;
     const currentLimit = limit ?? 10;
 
-    const queryBuilder = this.{entity}Model.tx.getRepository({Entity}Entity).createQueryBuilder('{entity}');
+    const repo = this.{entity}Model.tx.getRepository({Entity}Entity);
+    const qb = repo.createQueryBuilder('{entity}');
 
+    // Always filter by user
+    qb.where('{entity}.userId = :userId', { userId });
+
+    //Search (case-insensitive)
     if (search) {
-      queryBuilder.where('{entity}.name LIKE :search', { search: `%${search}%` });
+      qb.andWhere('({entity}.title ILIKE :search OR {entity}.notes ILIKE :search)', {
+        search: `%${search}%`,
+      });
     }
 
-    const sortableColumns = ['name', 'price', 'createdAt'];
+    // Category filter
+    if (category) {
+      qb.andWhere('{entity}.category = :category', { category });
+    }
+
+    // Date range filter
+    if (startDate) {
+      qb.andWhere('{entity}.date >= :startDate', { startDate: new Date(startDate) });
+    }
+    if (endDate) {
+      qb.andWhere('{entity}.date <= :endDate', { endDate: new Date(endDate) });
+    }
+
+    // Sorting (safe whitelist)
+    const sortableColumns = ['title', 'amount', 'date', 'category', 'createdAt'];
     if (sort && sortableColumns.includes(sort)) {
-      queryBuilder.orderBy(`{entity}.${sort}`, order === 'ASC' ? 'ASC' : 'DESC');
+      qb.orderBy(`{entity}.${sort}`, order === 'ASC' ? 'ASC' : 'DESC');
+    } else {
+      qb.orderBy('{entity}.date', 'DESC'); // default
     }
 
+    // Pagination (support -1 = all)
     if (currentLimit !== -1) {
-      queryBuilder.skip((currentPage - 1) * currentLimit).take(currentLimit);
+      qb.skip((currentPage - 1) * currentLimit).take(currentLimit);
     }
 
-    const [{entity}s, count] = await queryBuilder.getManyAndCount();
+    // Execute query
+    const [{entity}s, count] = await qb.getManyAndCount();
 
+    // Map to domain objects
     const result = {entity}s.map(({entity}) => {Entity}TypeOrmRepository.toDomain({entity}));
 
-    const meta = StrictBuilder<GetAllMetaType>().page(currentPage).limit(currentLimit).total(count).build();
+    // Meta info
+    const totalPages = currentLimit === -1 ? 1 : Math.ceil(count / currentLimit);
+    const meta = StrictBuilder<GetAllMetaType>()
+      .page(currentPage)
+      .limit(currentLimit)
+      .total(count)
+      .totalPages(totalPages)
+      .build();
 
-    return StrictBuilder<GetAllReturnType>().result(result).meta(meta).build();
+    return StrictBuilder<GetAll{entity}sReturnType>().result(result).meta(meta).build();
   }
 
   async getById(id: {Entity}Id): Promise<I{Entity} | undefined> {

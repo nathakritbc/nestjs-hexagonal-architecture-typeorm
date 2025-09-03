@@ -51,6 +51,16 @@ src/{MODULE_NAME}/
 ### Note
 - Generate `{ENTITY_NAME}.domain.spec.ts` only if the domain contains methods. If the domain has no methods, do not create this file.
 
+
+## AI Agent Guidelines
+
+### Code Generation Principles
+1. **Follow Hexagonal Architecture**: Always maintain the clear separation between adapters, applications, and domains
+2. **Use TypeScript**: Leverage strong typing throughout the application
+3. **Apply SOLID Principles**: Ensure single responsibility, dependency inversion, etc.
+4. **Test-Driven Approach**: Generate corresponding test files (.spec.ts) for all business logic
+5. **Use Dependency Injection**: Leverage NestJS DI container properly
+
 ## TDD-First Workflow
 - Write UseCase tests first following `docs/ai-specs/unit-test-spec.md`.
 - Keep repository dependencies mocked; do not touch adapters yet.
@@ -61,14 +71,25 @@ src/{MODULE_NAME}/
   - `pnpm test {file}` to run a specific spec
   - `pnpm test:cov` to verify coverage
 
-## Coding Rules
-- Object construction: Use `builder-pattern` instead of object literals for creating and returning objects.
+### TDD Workflow
+- Red → Green → Refactor: write a failing test first, make it pass with minimal code, then refactor safely.
+- Start with UseCase specs in `applications/usecases` before implementing the UseCase.
+- Add Domain specs in `applications/domains` only when the domain contains business methods.
+- Keep tests focused (AAA: Arrange, Act, Assert) and independent from infrastructure.
+- Run tests continuously with `pnpm test:watch`; check coverage with `pnpm test:cov`.
+
+#### Object Construction & Types
+- Use `builder-pattern` for constructing objects instead of object literals.
   - Example (assignment):
-    `const todo = Builder<ITodo>().id(1).title('todo1').build();`
+    - BAD: `const todo: ITodo = { id: 1, title: 'todo1' }`
+    - GOOD:
+      `const todo = Builder<ITodo>().id(1).title('todo1').build();`
   - Example (return):
-    `return Builder<ITodo>().id(1).title('todo1').build();`
-- No spread operator `...` (objects or arrays). Prefer explicit fields or Builder chaining.
-- No `any` type. Use exact interfaces, generics, or `unknown` with narrowing.
+    - BAD: `return { id: 1, title: 'todo1' } as ITodo;`
+    - GOOD:
+      `return Builder<ITodo>().id(1).title('todo1').build();`
+- Do not use the spread operator `...` (objects or arrays). Prefer explicit fields or Builder chaining.
+- Do not use `any`. Use precise types, generics, `unknown` with narrowing, or branded types as appropriate.
 
 ## Implementation Steps
 
@@ -96,6 +117,7 @@ export interface I{ENTITY_NAME} {
   uuid: {ENTITY_NAME}Id;
   price: {ENTITY_NAME}Price;
   // Add your domain properties here
+  status: Status;
   createdAt?: {ENTITY_NAME}CreatedAt;
   updatedAt?: {ENTITY_NAME}UpdatedAt;
 }
@@ -104,6 +126,9 @@ export class {ENTITY_NAME} implements I{ENTITY_NAME}  {
   uuid: {ENTITY_NAME}Id;
   price: {ENTITY_NAME}Price;
    // Add your domain properties here
+  status: Status;
+  createdAt?: {ENTITY_NAME}CreatedAt;
+  updatedAt?: {ENTITY_NAME}UpdatedAt;
 
   // Add other business methods here
   // Place other business methods here.
@@ -155,9 +180,9 @@ describe('{ENTITY_NAME}Domain', () => {
 
 ```typescript
 import { GetAllMetaType, GetAllParamsType } from 'src/types/utility.type';
-import { {Entity}Id, I{Entity} } from '../domains/expense.domain';
+import { {Entity}Id, I{Entity} } from '../domains/{entity}.domain';
 
-export type UpdateExpenseCommand = Partial<Omit<I{Entity}, 'uuid' 'createdAt' | 'updatedAt'>>;
+export type Update{Entity}Command = Partial<Omit<I{Entity}, 'uuid' 'createdAt' | 'updatedAt'>>;
 
 export interface GetAll{Entity}Query extends GetAllParamsType {
   category?: string;
@@ -176,12 +201,12 @@ export interface {Entity}ByCategory {
   count: number;
 }
 
-export interface GetExpenseReportQuery {
+export interface Get{Entity}ReportQuery {
   startDate?: Date;
   endDate?: Date;
 }
 
-export interface ExpenseReportReturnType {
+export interface {Entity}ReportReturnType {
   totalAmount: number;
   total{Entity}: number;
   categories: {Entity}ByCategory[];
@@ -191,16 +216,15 @@ export interface ExpenseReportReturnType {
   };
 }
 
-const expenseRepositoryTokenSymbol: unique symbol = Symbol('ExpenseRepository');
-export const expenseRepositoryToken = expenseRepositoryTokenSymbol.toString();
+const {entity}RepositoryTokenSymbol: unique symbol = Symbol('{Entity}Repository');
+export const {entity}RepositoryToken = {entity}RepositoryTokenSymbol.toString();
 
-export interface ExpenseRepository {
-  create(expense: I{Entity}): Promise<I{Entity}>;
+export interface {Entity}Repository {
+  create({Entity}: I{Entity}): Promise<I{Entity}>;
   deleteById({ id }: { id: {Entity}Id }): Promise<void>;
   getAll(params: GetAll{Entity}Query): Promise<GetAll{Entity}ReturnType>;
   getById({ id }: { id: {Entity}Id }): Promise<I{Entity} | undefined>;
-  getExpenseReport(query: GetExpenseReportQuery): Promise<ExpenseReportReturnType>;
-  updateById(expense: I{Entity}): Promise<I{Entity}>;
+  updateById({entity}: I{Entity}): Promise<I{Entity}>;
 }
 
 ```
@@ -272,13 +296,10 @@ export class Delete{ENTITY_NAME}ByIdUseCase {
   ) {}
 
   async execute(id: {ENTITY_NAME}Id): Promise<void> {
-    //Step 1. Get data result by id
     const {ENTITY_NAME}Found = await this.{ENTITY_NAME}Repository.getById(id);
 
-  //Step 2. Validate result and throw error
     if (!{ENTITY_NAME}Found) throw new NotFoundException('{ENTITY_NAME} not found');
 
-    //Step 3. Return delete result
     return this.{ENTITY_NAME}Repository.deleteById(id);
   }
 }
@@ -323,8 +344,10 @@ export const {ENTITY_NAME}TableName = '{ENTITY_NAME}s';
 export class {ENTITY_NAME}Entity {
   @PrimaryColumn({
     type: 'uuid',
+    name: 'uuid',
+    default: 'gen_random_uuid()',
   })
-  uuid: {ENTITY_NAME}Id;
+  uuid: {Entity}Id;
 
   @Column({
     type: 'varchar',
@@ -345,6 +368,12 @@ export class {ENTITY_NAME}Entity {
   // Add your entity columns here
   // @Column()
   // name: string;
+
+  @Column({
+    type: 'varchar',
+    default: 'active',
+  })
+  status: Status;
 
   @CreateDateColumn()
   declare createdAt: {ENTITY_NAME}CreatedAt;
@@ -423,7 +452,6 @@ import {
   {ENTITY_NAME}Repository,
 } from 'src/{ENTITY_NAME}s/applications/ports/{ENTITY_NAME}.repository';
 import { GetAllMetaType, GetAllParamsType, type Status } from 'src/types/utility.type';
-import { v4 as uuidv4 } from 'uuid';
 import { {ENTITY_NAME}Entity } from './{ENTITY_NAME}.entity';
 
 @Injectable()
@@ -432,9 +460,7 @@ export class {ENTITY_NAME}TypeOrmRepository implements {ENTITY_NAME}Repository {
 
 
   async create({ENTITY_NAME}: Create{ENTITY_NAME}Command): Promise<I{ENTITY_NAME}> {
-    const uuid = uuidv4() as {ENTITY_NAME}Id;
     const resultCreated = await this.{ENTITY_NAME}Model.tx.getRepository({ENTITY_NAME}Entity).save({
-      uuid: uuid,
       name: {ENTITY_NAME}.name,
       price: {ENTITY_NAME}.price,
       description: {ENTITY_NAME}.description,
@@ -447,43 +473,68 @@ export class {ENTITY_NAME}TypeOrmRepository implements {ENTITY_NAME}Repository {
     await this.{ENTITY_NAME}Model.tx.getRepository({ENTITY_NAME}Entity).delete({ uuid: id });
   }
 
-  async getAll(params: GetAllParamsType): Promise<GetAllReturnType> {
-    const { search, sort, order, page, limit } = params;
+
+  async getAll(params: GetAll{Entity}Query): Promise<GetAll{Entity}ReturnType> {
+    const { search, sort, order, page, limit, userId, category, startDate, endDate } = params;
 
     const currentPage = page ?? 1;
     const currentLimit = limit ?? 10;
 
-    const queryBuilder = this.{ENTITY_NAME}Model.tx.getRepository({ENTITY_NAME}Entity).createQueryBuilder('{ENTITY_NAME}');
+    const repo = this.{entity}Model.tx.getRepository({Entity}Entity);
+    const qb = repo.createQueryBuilder('{entity}');
 
+    // Always filter by user
+    qb.where('{entity}.userId = :userId', { userId });
+
+    //Search (case-insensitive)
     if (search) {
-      queryBuilder.where('{ENTITY_NAME}.name LIKE :search', { search: `%${search}%` });
+      qb.andWhere('({entity}.title ILIKE :search OR {entity}.notes ILIKE :search)', {
+        search: `%${search}%`,
+      });
     }
 
-    const sortableColumns = ['name', 'price', 'createdAt'];
+    // Category filter
+    if (category) {
+      qb.andWhere('{entity}.category = :category', { category });
+    }
+
+    // Date range filter
+    if (startDate) {
+      qb.andWhere('{entity}.date >= :startDate', { startDate: new Date(startDate) });
+    }
+    if (endDate) {
+      qb.andWhere('{entity}.date <= :endDate', { endDate: new Date(endDate) });
+    }
+
+    // Sorting (safe whitelist)
+    const sortableColumns = ['title', 'amount', 'date', 'category', 'createdAt'];
     if (sort && sortableColumns.includes(sort)) {
-      queryBuilder.orderBy(`{ENTITY_NAME}.${sort}`, order === 'ASC' ? 'ASC' : 'DESC');
+      qb.orderBy(`{entity}.${sort}`, order === 'ASC' ? 'ASC' : 'DESC');
+    } else {
+      qb.orderBy('{entity}.date', 'DESC'); // default
     }
 
+    // Pagination (support -1 = all)
     if (currentLimit !== -1) {
-      queryBuilder.skip((currentPage - 1) * currentLimit).take(currentLimit);
+      qb.skip((currentPage - 1) * currentLimit).take(currentLimit);
     }
 
-    const [{ENTITY_NAME}s, count] = await queryBuilder.getManyAndCount();
+    // Execute query
+    const [{entity}s, count] = await qb.getManyAndCount();
 
-    const result = {ENTITY_NAME}s.map(({ENTITY_NAME}) => {ENTITY_NAME}TypeOrmRepository.toDomain({ENTITY_NAME}));
+    // Map to domain objects
+    const result = {entity}s.map(({entity}) => {Entity}TypeOrmRepository.toDomain({entity}));
 
-    const meta = StrictBuilder<GetAllMetaType>().page(currentPage).limit(currentLimit).total(count).build();
+    // Meta info
+    const totalPages = currentLimit === -1 ? 1 : Math.ceil(count / currentLimit);
+    const meta = StrictBuilder<GetAllMetaType>()
+      .page(currentPage)
+      .limit(currentLimit)
+      .total(count)
+      .totalPages(totalPages)
+      .build();
 
-    return StrictBuilder<GetAllReturnType>().result(result).meta(meta).build();
-  }
-
-  async getById(id: {ENTITY_NAME}Id): Promise<I{ENTITY_NAME} | undefined> {
-    const {ENTITY_NAME} = await this.{ENTITY_NAME}Model.tx.getRepository({ENTITY_NAME}Entity).findOne({
-      where: {
-        uuid: id,
-      },
-    });
-    return {ENTITY_NAME} ? {ENTITY_NAME}TypeOrmRepository.toDomain({ENTITY_NAME}) : undefined;
+    return StrictBuilder<GetAll{entity}sReturnType>().result(result).meta(meta).build();
   }
 
   async updateById(id: {ENTITY_NAME}Id, {ENTITY_NAME}: Partial<I{ENTITY_NAME}>): Promise<I{ENTITY_NAME}> {
