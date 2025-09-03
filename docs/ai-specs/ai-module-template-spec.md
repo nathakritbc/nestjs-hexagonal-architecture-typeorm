@@ -28,31 +28,31 @@ This template provides a standardized approach for creating new modules within t
 src/{MODULE_NAME}/
 ├── adapters/
 │   ├── inbounds/                    # API Layer
-│   │   ├── {ENTITY_NAME}.controller.ts
-│   │   ├── create{ENTITY_NAME}.dto.ts
-│   │   ├── update{ENTITY_NAME}.dto.ts
-│   │   ├── {ENTITY_NAME}Response.dto.ts
-│   │   └── {ENTITY_NAME}.http      # HTTP client testing
+│   │   ├── {Entity}.controller.ts
+│   │   ├── create{Entity}.dto.ts
+│   │   ├── update{Entity}.dto.ts
+│   │   ├── {Entity}Response.dto.ts
+│   │   └── {Entity}.http      # HTTP client testing
 │   └── outbounds/                   # Database Layer
-│       ├── {ENTITY_NAME}.entity.ts
-│       └── {ENTITY_NAME}.typeorm.repository.ts
+│       ├── {Entity}.entity.ts
+│       └── {Entity}.typeorm.repository.ts
 ├── applications/
 │   ├── domains/                     # Business Logic
-│   │   ├── {ENTITY_NAME}.domain.ts
-│   │   └── {ENTITY_NAME}.domain.spec.ts  # Only if domain has methods
+│   │   ├── {Entity}.domain.ts
+│   │   └── {Entity}.domain.spec.ts  # Only if domain has methods
 │   ├── ports/                       # Repository Interface
-│   │   └── {ENTITY_NAME}.repository.ts
+│   │   └── {Entity}.repository.ts
 │   └── usecases/                    # Application Logic
-│       ├── create{ENTITY_NAME}.usecase.ts
-│       ├── create{ENTITY_NAME}.usecase.spec.ts
-│       ├── get{ENTITY_NAME}ById.usecase.ts
-│       ├── get{ENTITY_NAME}ById.usecase.spec.ts
-│       ├── getAll{ENTITY_NAME}s.usecase.ts
-│       ├── getAll{ENTITY_NAME}s.usecase.spec.ts
-│       ├── update{ENTITY_NAME}.usecase.ts
-│       ├── update{ENTITY_NAME}.usecase.spec.ts
-│       ├── delete{ENTITY_NAME}.usecase.ts
-│       └── delete{ENTITY_NAME}.usecase.spec.ts
+│       ├── create{Entity}.usecase.ts
+│       ├── create{Entity}.usecase.spec.ts
+│       ├── get{Entity}ById.usecase.ts
+│       ├── get{Entity}ById.usecase.spec.ts
+│       ├── getAll{Entity}s.usecase.ts
+│       ├── getAll{Entity}s.usecase.spec.ts
+│       ├── update{Entity}.usecase.ts
+│       ├── update{Entity}.usecase.spec.ts
+│       ├── delete{Entity}.usecase.ts
+│       └── delete{Entity}.usecase.spec.ts
 └── {MODULE_NAME}.module.ts
 ```
 
@@ -88,26 +88,26 @@ import { Builder } from 'builder-pattern';
 import type { Brand, Status } from 'src/types/utility.type';
 
 // Branded types for type safety
-export type {ENTITY_NAME}Id = Brand<string, '{ENTITY_NAME}Id'>;
-export type {ENTITY_NAME}Price = Brand<number, '{ENTITY_NAME}Price'>;
-export type {ENTITY_NAME}CreatedAt = Brand<CreatedAt, '{ENTITY_NAME}CreatedAt'>;
-export type {ENTITY_NAME}UpdatedAt = Brand<UpdatedAt, '{ENTITY_NAME}UpdatedAt'>;
+export type {Entity}Id = Brand<string, '{Entity}Id'>;
+export type {Entity}Price = Brand<number, '{Entity}Price'>;
+export type {Entity}CreatedAt = Brand<CreatedAt, '{Entity}CreatedAt'>;
+export type {Entity}UpdatedAt = Brand<UpdatedAt, '{Entity}UpdatedAt'>;
 
-export interface I{ENTITY_NAME} {
-  uuid: {ENTITY_NAME}Id;
-  price: {ENTITY_NAME}Price;
+export interface I{Entity} {
+  uuid: {Entity}Id;
+  price: {Entity}Price;
   status: Status;
-  createdAt?: {ENTITY_NAME}CreatedAt;
-  updatedAt?: {ENTITY_NAME}UpdatedAt;
+  createdAt?: {Entity}CreatedAt;
+  updatedAt?: {Entity}UpdatedAt;
   // Add your domain properties here
 }
 
-export class {ENTITY_NAME} implements I{ENTITY_NAME} {
-  uuid: {ENTITY_NAME}Id;
-  price: {ENTITY_NAME}Price;
+export class {Entity} implements I{Entity} {
+  uuid: {Entity}Id;
+  price: {Entity}Price;
   status: Status;
-  createdAt?: {ENTITY_NAME}CreatedAt;
-  updatedAt?: {ENTITY_NAME}UpdatedAt;
+  createdAt?: {Entity}CreatedAt;
+  updatedAt?: {Entity}UpdatedAt;
   
   // Add business logic methods ONLY if needed
   // Example: validate(), canBeDeleted(), etc.
@@ -118,9 +118,9 @@ export class {ENTITY_NAME} implements I{ENTITY_NAME} {
 #### Domain Test Template (Only if domain has methods)
 ```typescript
 import { describe, it, expect } from 'vitest';
-import { {ENTITY_NAME} } from './{ENTITY_NAME}.domain';
+import { {Entity} } from './{Entity}.domain';
 
-describe('{ENTITY_NAME}Domain', () => {
+describe('{Entity}Domain', () => {
   describe('business logic methods', () => {
     it('should validate required properties', () => {
       // Arrange
@@ -153,7 +153,7 @@ export interface {Entity}Repository {
   delete{Entity}ById({ id }: { id: {Entity}Id }): Promise<void>;
   getAll{Entity}s(params: GetAllParamsType): Promise<GetAll{Entity}ReturnType>;
   get{Entity}ById({ id }: { id: {Entity}Id }): Promise<I{Entity} | undefined>;
-  update{Entity}ById({entity}: I{Entity}): Promise<I{ENTITY_NAME}>;
+  update{Entity}ById({entity}: I{Entity}): Promise<I{Entity}>;
 }
 ```
 
@@ -162,19 +162,19 @@ export interface {Entity}Repository {
 #### Create Use Case Template
 ```typescript
 import { Inject, Injectable } from '@nestjs/common';
-import { I{ENTITY_NAME} } from '../domains/{ENTITY_NAME}.domain';
-import type { Create{ENTITY_NAME}Command, {ENTITY_NAME}Repository } from '../ports/{ENTITY_NAME}.repository';
-import { {ENTITY_NAME}RepositoryToken } from '../ports/{ENTITY_NAME}.repository';
+import { I{Entity} } from '../domains/{Entity}.domain';
+import type { Create{Entity}Command, {Entity}Repository } from '../ports/{Entity}.repository';
+import { {entity}RepositoryToken } from '../ports/{Entity}.repository';
 
 @Injectable()
-export class Create{ENTITY_NAME}UseCase {
+export class Create{Entity}UseCase {
   constructor(
-    @Inject({ENTITY_NAME}RepositoryToken)
-    private readonly {ENTITY_NAME}Repository: {ENTITY_NAME}Repository,
+    @Inject({entity}RepositoryToken)
+    private readonly {entity}Repository: {Entity}Repository,
   ) {}
 
-  async execute({ENTITY_NAME}: Create{ENTITY_NAME}Command): Promise<I{ENTITY_NAME}> {
-    return await this.{ENTITY_NAME}Repository.create({ENTITY_NAME});
+  async execute({entity}: Create{Entity}Command): Promise<I{Entity}> {
+    return await this.{entity}Repository.create({entity});
   }
 }
 ```
@@ -183,18 +183,18 @@ export class Create{ENTITY_NAME}UseCase {
 ```typescript
 import { Inject, Injectable } from '@nestjs/common';
 import type { GetAllParamsType } from 'src/types/utility.type';
-import type { GetAllReturnType, {ENTITY_NAME}Repository } from '../ports/{ENTITY_NAME}.repository';
-import { {ENTITY_NAME}RepositoryToken } from '../ports/{ENTITY_NAME}.repository';
+import type { GetAllReturnType, {Entity}Repository } from '../ports/{Entity}.repository';
+import { {entity}RepositoryToken } from '../ports/{Entity}.repository';
 
 @Injectable()
-export class GetAll{ENTITY_NAME}sUseCase {
+export class GetAll{Entity}sUseCase {
   constructor(
-    @Inject({ENTITY_NAME}RepositoryToken)
-    private readonly {ENTITY_NAME}Repository: {ENTITY_NAME}Repository,
+    @Inject({entity}RepositoryToken)
+    private readonly {entity}Repository: {Entity}Repository,
   ) {}
 
   async execute(params: GetAllParamsType): Promise<GetAllReturnType> {
-    return this.{ENTITY_NAME}Repository.getAll({
+    return this.{entity}Repository.getAll({
       search: params.search,
       sort: params.sort,
       order: params.order,
@@ -208,23 +208,23 @@ export class GetAll{ENTITY_NAME}sUseCase {
 #### GetById Use Case Template
 ```typescript
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import type { {ENTITY_NAME}Id } from 'src/{entity_name}s/applications/domains/{entity_name}.domain';
-import type { {ENTITY_NAME}Id, I{ENTITY_NAME} } from '../domains/{entity_name}.domain';
-import type { {ENTITY_NAME}Repository } from '../ports/{entity_name}.repository';
-import { {entity_name}RepositoryToken } from '../ports/{entity_name}.repository';
+import type { {Entity}Id } from 'src/{entity}s/applications/domains/{entity}.domain';
+import type { {Entity}Id, I{Entity} } from '../domains/{entity}.domain';
+import type { {Entity}Repository } from '../ports/{entity}.repository';
+import { {entity}RepositoryToken } from '../ports/{entity}.repository';
 
 @Injectable()
-export class Get{ENTITY_NAME}ByIdUseCase {
+export class Get{Entity}ByIdUseCase {
   constructor(
-    @Inject({entity_name}RepositoryToken)
-    private readonly {entity_name}Repository: {ENTITY_NAME}Repository,
+    @Inject({entity}RepositoryToken)
+    private readonly {entity}Repository: {Entity}Repository,
   ) {}
 
-  async execute({ id, {entity_name}Id }: { id: {ENTITY_NAME}Id; {entity_name}Id: UserId }): Promise<I{ENTITY_NAME}> {
-    const {entity_name} = await this.{entity_name}Repository.get{ENTITY_NAME}ById({ id, userId });
-    if (!{entity_name}) throw new NotFoundException('{ENTITY_NAME} not found');
+  async execute({ id, {entity}Id }: { id: {Entity}Id; {entity}Id: UserId }): Promise<I{Entity}> {
+    const {entity} = await this.{entity}Repository.get{Entity}ById({ id, userId });
+    if (!{entity}) throw new NotFoundException('{Entity} not found');
 
-    return {entity_name};
+    return {entity};
   }
 }
 
@@ -233,22 +233,22 @@ export class Get{ENTITY_NAME}ByIdUseCase {
 #### UpdateById Use Case Template
 ```typescript
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { type I{ENTITY_NAME} } from '../domains/{entity_name}.domain';
-import type { {ENTITY_NAME}Repository } from '../ports/{entity_name}.repository';
-import { {entity_name}RepositoryToken } from '../ports/{entity_name}.repository';
+import { type I{Entity} } from '../domains/{entity}.domain';
+import type { {Entity}Repository } from '../ports/{entity}.repository';
+import { {entity}RepositoryToken } from '../ports/{entity}.repository';
 
 @Injectable()
-export class Update{ENTITY_NAME}ByIdUseCase {
+export class Update{Entity}ByIdUseCase {
   constructor(
-    @Inject({entity_name}RepositoryToken)
-    private readonly {entity_name}Repository: {ENTITY_NAME}Repository,
+    @Inject({entity}RepositoryToken)
+    private readonly {entity}Repository: {Entity}Repository,
   ) {}
 
-  async execute({entity_name}: I{ENTITY_NAME}): Promise<I{ENTITY_NAME}> {
-    const existing{ENTITY_NAME} = await this.{entity_name}Repository.getById({ id: {entity_name}.uuid, userId: {entity_name}.userId });
-    if (!existing{ENTITY_NAME}) throw new NotFoundException('{ENTITY_NAME} not found');
+  async execute({entity}: I{Entity}): Promise<I{Entity}> {
+    const existing{Entity} = await this.{entity}Repository.getById({ id: {entity}.uuid, userId: {entity}.userId });
+    if (!existing{Entity}) throw new NotFoundException('{Entity} not found');
 
-    return this.{entity_name}Repository.update{ENTITY_NAME}ById({entity_name});
+    return this.{entity}Repository.update{Entity}ById({entity});
   }
 }
 
@@ -258,21 +258,21 @@ export class Update{ENTITY_NAME}ByIdUseCase {
 #### Delete Use Case Template
 ```typescript
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import type { {ENTITY_NAME}Id } from '../domains/{ENTITY_NAME}.domain';
-import type { {ENTITY_NAME}Repository } from '../ports/{ENTITY_NAME}.repository';
-import { {ENTITY_NAME}RepositoryToken } from '../ports/{ENTITY_NAME}.repository';
+import type { {Entity}Id } from '../domains/{Entity}.domain';
+import type { {Entity}Repository } from '../ports/{Entity}.repository';
+import { {entity}RepositoryToken } from '../ports/{Entity}.repository';
 
 @Injectable()
-export class Delete{ENTITY_NAME}ByIdUseCase {
+export class Delete{Entity}ByIdUseCase {
   constructor(
-    @Inject({ENTITY_NAME}RepositoryToken)
-    private readonly {ENTITY_NAME}Repository: {ENTITY_NAME}Repository,
+    @Inject({entity}RepositoryToken)
+    private readonly {entity}Repository: {Entity}Repository,
   ) {}
 
-  async execute(id: {ENTITY_NAME}Id): Promise<void> {
-    const {ENTITY_NAME}Found = await this.{ENTITY_NAME}Repository.getById(id);
-    if (!{ENTITY_NAME}Found) throw new NotFoundException('{ENTITY_NAME} not found');
-    return this.{ENTITY_NAME}Repository.deleteById(id);
+  async execute(id: {Entity}Id): Promise<void> {
+    const {Entity}Found = await this.{entity}Repository.getById(id);
+    if (!{Entity}Found) throw new NotFoundException('{Entity} not found');
+    return this.{entity}Repository.deleteById(id);
   }
 }
 ```
@@ -282,21 +282,21 @@ export class Delete{ENTITY_NAME}ByIdUseCase {
 #### TypeORM Entity Template
 ```typescript
 import type {
-  {ENTITY_NAME}CreatedAt,
-  {ENTITY_NAME}Description,
-  {ENTITY_NAME}Id,
-  {ENTITY_NAME}Image,
-  {ENTITY_NAME}Name,
-  {ENTITY_NAME}Price,
-  {ENTITY_NAME}UpdatedAt,
-} from 'src/{ENTITY_NAME}s/applications/domains/{ENTITY_NAME}.domain';
+  {Entity}CreatedAt,
+  {Entity}Description,
+  {Entity}Id,
+  {Entity}Image,
+  {Entity}Name,
+  {Entity}Price,
+  {Entity}UpdatedAt,
+} from 'src/{Entity}s/applications/domains/{Entity}.domain';
 import type { Status } from 'src/types/utility.type';
 import { Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn } from 'typeorm';
 
-export const {ENTITY_NAME}TableName = '{ENTITY_NAME}s';
+export const {Entity}TableName = '{Entity}s';
 
-@Entity({ name: {ENTITY_NAME}TableName })
-export class {ENTITY_NAME}Entity {
+@Entity({ name: {Entity}TableName })
+export class {Entity}Entity {
   @PrimaryColumn({
     type: 'uuid',
     name: 'uuid',
@@ -305,22 +305,22 @@ export class {ENTITY_NAME}Entity {
   uuid: {Entity}Id;
 
   @Column({ type: 'varchar' })
-  name: {ENTITY_NAME}Name;
+  name: {Entity}Name;
 
   @Column({ type: 'float' })
-  price: {ENTITY_NAME}Price;
+  price: {Entity}Price;
 
   @Column({ type: 'varchar', nullable: true })
-  description?: {ENTITY_NAME}Description;
+  description?: {Entity}Description;
 
   @Column({ type: 'varchar', default: 'active' })
   status: Status;
 
   @CreateDateColumn()
-  declare createdAt: {ENTITY_NAME}CreatedAt;
+  declare createdAt: {Entity}CreatedAt;
 
   @UpdateDateColumn()
-  declare updatedAt: {ENTITY_NAME}UpdatedAt;
+  declare updatedAt: {Entity}UpdatedAt;
 }
 ```
 
@@ -330,25 +330,25 @@ import { TransactionHost } from '@nestjs-cls/transactional';
 import { TransactionalAdapterTypeOrm } from '@nestjs-cls/transactional-adapter-typeorm';
 import { Injectable } from '@nestjs/common';
 import { Builder, StrictBuilder } from 'builder-pattern';
-import type { I{ENTITY_NAME}, {ENTITY_NAME}Id } from '../domains/{ENTITY_NAME}.domain';
-import { {ENTITY_NAME}Repository } from '../ports/{ENTITY_NAME}.repository';
+import type { I{Entity}, {Entity}Id } from '../domains/{Entity}.domain';
+import { {Entity}Repository } from '../ports/{Entity}.repository';
 import { GetAllMetaType, GetAllParamsType } from 'src/types/utility.type';
-import { {ENTITY_NAME}Entity } from './{ENTITY_NAME}.entity';
+import { {Entity}Entity } from './{Entity}.entity';
 
 @Injectable()
-export class {ENTITY_NAME}TypeOrmRepository implements {ENTITY_NAME}Repository {
-  constructor(private readonly {ENTITY_NAME}Model: TransactionHost<TransactionalAdapterTypeOrm>) {}
+export class {Entity}TypeOrmRepository implements {Entity}Repository {
+  constructor(private readonly {entity}Model: TransactionHost<TransactionalAdapterTypeOrm>) {}
 
-  async create({ENTITY_NAME}: I{ENTITY_NAME}): Promise<I{ENTITY_NAME}> {
-    const resultCreated = await this.{ENTITY_NAME}Model.tx
-      .getRepository({ENTITY_NAME}Entity)
-      .save({ENTITY_NAME});
-    return {ENTITY_NAME}TypeOrmRepository.toDomain(resultCreated as {ENTITY_NAME}Entity);
+  async create({entity}: I{Entity}): Promise<I{Entity}> {
+    const resultCreated = await this.{entity}Model.tx
+      .getRepository({Entity}Entity)
+      .save({entity});
+    return {Entity}TypeOrmRepository.toDomain(resultCreated as {Entity}Entity);
   }
 
-  async deleteById(id: {ENTITY_NAME}Id): Promise<void> {
-    await this.{ENTITY_NAME}Model.tx
-      .getRepository({ENTITY_NAME}Entity)
+  async deleteById(id: {Entity}Id): Promise<void> {
+    await this.{entity}Model.tx
+      .getRepository({Entity}Entity)
       .delete({ uuid: id });
   }
 
@@ -405,27 +405,27 @@ export class {ENTITY_NAME}TypeOrmRepository implements {ENTITY_NAME}Repository {
     return StrictBuilder<GetAll{entity}sReturnType>().result(result).meta(meta).build();
   }
 
-  async updateById(id: {ENTITY_NAME}Id, {ENTITY_NAME}: Partial<I{ENTITY_NAME}>): Promise<I{ENTITY_NAME}> {
-    await this.{ENTITY_NAME}Model.tx
-      .getRepository({ENTITY_NAME}Entity)
-      .update({ uuid: id }, {ENTITY_NAME});
+  async updateById(id: {Entity}Id, {entity}: Partial<I{Entity}>): Promise<I{Entity}> {
+    await this.{entity}Model.tx
+      .getRepository({Entity}Entity)
+      .update({ uuid: id }, {entity});
     
-    const updated{ENTITY_NAME} = await this.{ENTITY_NAME}Model.tx
-      .getRepository({ENTITY_NAME}Entity)
+    const updated{Entity} = await this.{entity}Model.tx
+      .getRepository({Entity}Entity)
       .findOne({ where: { uuid: id } });
     
-    return {ENTITY_NAME}TypeOrmRepository.toDomain(updated{ENTITY_NAME} as {ENTITY_NAME}Entity);
+    return {Entity}TypeOrmRepository.toDomain(updated{Entity} as {Entity}Entity);
   }
 
-  public static toDomain({ENTITY_NAME}Entity: {ENTITY_NAME}Entity): I{ENTITY_NAME} {
-    return Builder<I{ENTITY_NAME}>()
-      .uuid({ENTITY_NAME}Entity.uuid as {ENTITY_NAME}Id)
-      .name({ENTITY_NAME}Entity.name as {ENTITY_NAME}Name)
-      .price({ENTITY_NAME}Entity.price as {ENTITY_NAME}Price)
-      .description({ENTITY_NAME}Entity.description as {ENTITY_NAME}Description)
-      .status({ENTITY_NAME}Entity.status as Status)
-      .createdAt({ENTITY_NAME}Entity.createdAt as {ENTITY_NAME}CreatedAt)
-      .updatedAt({ENTITY_NAME}Entity.updatedAt as {ENTITY_NAME}UpdatedAt)
+  public static toDomain({Entity}Entity: {Entity}Entity): I{Entity} {
+    return Builder<I{Entity}>()
+      .uuid({Entity}Entity.uuid as {Entity}Id)
+      .name({Entity}Entity.name as {Entity}Name)
+      .price({Entity}Entity.price as {Entity}Price)
+      .description({Entity}Entity.description as {Entity}Description)
+      .status({Entity}Entity.status as Status)
+      .createdAt({Entity}Entity.createdAt as {Entity}CreatedAt)
+      .updatedAt({Entity}Entity.updatedAt as {Entity}UpdatedAt)
       .build();
   }
 }
@@ -440,90 +440,90 @@ export class {ENTITY_NAME}TypeOrmRepository implements {ENTITY_NAME}Repository {
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsOptional } from 'class-validator';
 import type {
-  {ENTITY_NAME}Description,
-  {ENTITY_NAME}Image,
-  {ENTITY_NAME}Name,
-  {ENTITY_NAME}Price,
-} from 'src/{ENTITY_NAME}s/applications/domains/{ENTITY_NAME}.domain';
+  {Entity}Description,
+  {Entity}Image,
+  {Entity}Name,
+  {Entity}Price,
+} from 'src/{Entity}s/applications/domains/{Entity}.domain';
 
-export class Create{ENTITY_NAME}Dto {
+export class Create{Entity}Dto {
   @ApiProperty({
     type: String,
-    example: 'Sample {ENTITY_NAME}',
-    description: 'The name of the {ENTITY_NAME}',
+    example: 'Sample {Entity}',
+    description: 'The name of the {Entity}',
   })
   @IsNotEmpty()
-  name: {ENTITY_NAME}Name;
+  name: {Entity}Name;
 
   @ApiProperty({
     type: Number,
     example: 100.75,
-    description: 'The price of the {ENTITY_NAME}',
+    description: 'The price of the {Entity}',
   })
   @IsNotEmpty()
-  price: {ENTITY_NAME}Price;
+  price: {Entity}Price;
 
   @ApiProperty({
     type: String,
     example: 'https://example.com/image.jpg',
-    description: 'The image URL of the {ENTITY_NAME}',
+    description: 'The image URL of the {Entity}',
     required: false,
   })
   @IsOptional()
-  image?: {ENTITY_NAME}Image;
+  image?: {Entity}Image;
 
   @ApiProperty({
     type: String,
     example: 'Description text',
-    description: 'The description of the {ENTITY_NAME}',
+    description: 'The description of the {Entity}',
     required: false,
   })
   @IsOptional()
-  description?: {ENTITY_NAME}Description;
+  description?: {Entity}Description;
 }
 ```
 
 **Update DTO**
 ```typescript
 import { PartialType } from '@nestjs/swagger';
-import { Create{ENTITY_NAME}Dto } from './create{ENTITY_NAME}.dto';
+import { Create{Entity}Dto } from './create{Entity}.dto';
 
-export class Update{ENTITY_NAME}Dto extends PartialType(Create{ENTITY_NAME}Dto) {}
+export class Update{Entity}Dto extends PartialType(Create{Entity}Dto) {}
 ```
 
 **Response DTO**
 ```typescript
 import { ApiProperty } from '@nestjs/swagger';
 import type {
-  {ENTITY_NAME}Id,
-  {ENTITY_NAME}CreatedAt,
-  {ENTITY_NAME}UpdatedAt
-} from 'src/{ENTITY_NAME}s/applications/domains/{ENTITY_NAME}.domain';
+  {Entity}Id,
+  {Entity}CreatedAt,
+  {Entity}UpdatedAt
+} from 'src/{Entity}s/applications/domains/{Entity}.domain';
 
-export class {ENTITY_NAME}ResponseDto {
+export class {Entity}ResponseDto {
   @ApiProperty()
-  uuid: {ENTITY_NAME}Id;
-
-  @ApiProperty()
-  name: string;
+  uuid: {Entity}Id;
 
   @ApiProperty()
-  price: number;
+  name: {Entity}Name;
 
   @ApiProperty()
-  description?: string;
+  price: {Entity}Price;
 
   @ApiProperty()
-  image?: string;
+  description?: {Entity}Description;
 
   @ApiProperty()
-  status: string;
+  image?: {Entity}Image;
 
   @ApiProperty()
-  createdAt: {ENTITY_NAME}CreatedAt;
+  status: Status;
 
   @ApiProperty()
-  updatedAt: {ENTITY_NAME}UpdatedAt;
+  createdAt: {Entity}CreatedAt;
+
+  @ApiProperty()
+  updatedAt: {Entity}UpdatedAt;
 }
 ```
 
@@ -534,42 +534,42 @@ import { Body, Controller, Delete, Get, HttpStatus, Param, ParseUUIDPipe, Post, 
 import { ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { Builder } from 'builder-pattern';
 import { JwtAuthGuard } from 'src/auth/jwtAuth.guard';
-import type { I{ENTITY_NAME}, {ENTITY_NAME}Id } from 'src/{ENTITY_NAME}s/applications/domains/{ENTITY_NAME}.domain';
-import { Create{ENTITY_NAME}UseCase } from 'src/{ENTITY_NAME}s/applications/usecases/create{ENTITY_NAME}.usecase';
-import { Delete{ENTITY_NAME}ByIdUseCase } from 'src/{ENTITY_NAME}s/applications/usecases/delete{ENTITY_NAME}ById.usecase';
-import { GetAll{ENTITY_NAME}sUseCase } from 'src/{ENTITY_NAME}s/applications/usecases/getAll{ENTITY_NAME}s.usecase';
-import { Get{ENTITY_NAME}ByIdUseCase } from 'src/{ENTITY_NAME}s/applications/usecases/get{ENTITY_NAME}ById.usecase';
-import { Update{ENTITY_NAME}ByIdUseCase } from 'src/{ENTITY_NAME}s/applications/usecases/update{ENTITY_NAME}ById.usecase';
-import { Create{ENTITY_NAME}Dto } from './dto/create{ENTITY_NAME}.dto';
-import type { Update{ENTITY_NAME}Dto } from './dto/update{ENTITY_NAME}.dto';
+import type { I{Entity}, {Entity}Id } from 'src/{Entity}s/applications/domains/{Entity}.domain';
+import { Create{Entity}UseCase } from 'src/{Entity}s/applications/usecases/create{Entity}.usecase';
+import { Delete{Entity}ByIdUseCase } from 'src/{Entity}s/applications/usecases/delete{Entity}ById.usecase';
+import { GetAll{Entity}sUseCase } from 'src/{Entity}s/applications/usecases/getAll{Entity}s.usecase';
+import { Get{Entity}ByIdUseCase } from 'src/{Entity}s/applications/usecases/get{Entity}ById.usecase';
+import { Update{Entity}ByIdUseCase } from 'src/{Entity}s/applications/usecases/update{Entity}ById.usecase';
+import { Create{Entity}Dto } from './dto/create{Entity}.dto';
+import type { Update{Entity}Dto } from './dto/update{Entity}.dto';
 
 @UseGuards(JwtAuthGuard)
-@Controller('{ENTITY_NAME}s')
-export class {ENTITY_NAME}Controller {
+@Controller('{Entity}s')
+export class {Entity}Controller {
   constructor(
-    private readonly create{ENTITY_NAME}UseCase: Create{ENTITY_NAME}UseCase,
-    private readonly delete{ENTITY_NAME}ByIdUseCase: Delete{ENTITY_NAME}ByIdUseCase,
-    private readonly getAll{ENTITY_NAME}sUseCase: GetAll{ENTITY_NAME}sUseCase,
-    private readonly update{ENTITY_NAME}ByIdUseCase: Update{ENTITY_NAME}ByIdUseCase,
-    private readonly get{ENTITY_NAME}ByIdUseCase: Get{ENTITY_NAME}ByIdUseCase,
+    private readonly create{Entity}UseCase: Create{Entity}UseCase,
+    private readonly delete{Entity}ByIdUseCase: Delete{Entity}ByIdUseCase,
+    private readonly getAll{Entity}sUseCase: GetAll{Entity}sUseCase,
+    private readonly update{Entity}ByIdUseCase: Update{Entity}ByIdUseCase,
+    private readonly get{Entity}ByIdUseCase: Get{Entity}ByIdUseCase,
   ) {}
 
-  @ApiOperation({ summary: 'Create a {ENTITY_NAME}' })
-  @ApiResponse({ status: HttpStatus.OK, description: 'The {ENTITY_NAME} has been successfully created.' })
+  @ApiOperation({ summary: 'Create a {Entity}' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'The {Entity} has been successfully created.' })
   @Post()
   @Transactional()
-  create(@Body() create{ENTITY_NAME}Dto: Create{ENTITY_NAME}Dto): Promise<I{ENTITY_NAME}> {
-    const command = Builder<I{ENTITY_NAME}>()
-      .name(create{ENTITY_NAME}Dto.name)
-      .price(create{ENTITY_NAME}Dto.price)
-      .image(create{ENTITY_NAME}Dto.image)
-      .description(create{ENTITY_NAME}Dto.description)
+  create(@Body() create{Entity}Dto: Create{Entity}Dto): Promise<I{Entity}> {
+    const command = Builder<I{Entity}>()
+      .name(create{Entity}Dto.name)
+      .price(create{Entity}Dto.price)
+      .image(create{Entity}Dto.image)
+      .description(create{Entity}Dto.description)
       .build();
-    return this.create{ENTITY_NAME}UseCase.execute(command);
+    return this.create{Entity}UseCase.execute(command);
   }
 
-  @ApiOperation({ summary: 'Get all {ENTITY_NAME}s' })
-  @ApiResponse({ status: HttpStatus.OK, description: 'The {ENTITY_NAME}s have been successfully retrieved.' })
+  @ApiOperation({ summary: 'Get all {Entity}s' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'The {Entity}s have been successfully retrieved.' })
   @Get()
   @Transactional()
   getAll(
@@ -579,40 +579,40 @@ export class {ENTITY_NAME}Controller {
     @Query('page') page?: number,
     @Query('limit') limit?: number,
   ) {
-    return this.getAll{ENTITY_NAME}sUseCase.execute({ search, sort, order, page, limit });
+    return this.getAll{Entity}sUseCase.execute({ search, sort, order, page, limit });
   }
 
-  @ApiOperation({ summary: 'Get a {ENTITY_NAME} by id' })
-  @ApiResponse({ status: HttpStatus.OK, description: 'The {ENTITY_NAME} has been successfully retrieved.' })
-  @ApiParam({ name: 'id', type: String, description: 'The id of the {ENTITY_NAME}' })
+  @ApiOperation({ summary: 'Get a {Entity} by id' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'The {Entity} has been successfully retrieved.' })
+  @ApiParam({ name: 'id', type: String, description: 'The id of the {Entity}' })
   @Get(':id')
   @Transactional()
-  getById(@Param('id', ParseUUIDPipe) id: {ENTITY_NAME}Id): Promise<I{ENTITY_NAME} | undefined> {
-    return this.get{ENTITY_NAME}ByIdUseCase.execute(id);
+  getById(@Param('id', ParseUUIDPipe) id: {Entity}Id): Promise<I{Entity} | undefined> {
+    return this.get{Entity}ByIdUseCase.execute(id);
   }
 
-  @ApiOperation({ summary: 'Update a {ENTITY_NAME}' })
-  @ApiResponse({ status: HttpStatus.OK, description: 'The {ENTITY_NAME} has been successfully updated.' })
-  @ApiParam({ name: 'id', type: String, description: 'The id of the {ENTITY_NAME}' })
+  @ApiOperation({ summary: 'Update a {Entity}' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'The {Entity} has been successfully updated.' })
+  @ApiParam({ name: 'id', type: String, description: 'The id of the {Entity}' })
   @Put(':id')
   @Transactional()
-  update(@Param('id', ParseUUIDPipe) id: {ENTITY_NAME}Id, @Body() update{ENTITY_NAME}Dto: Update{ENTITY_NAME}Dto): Promise<I{ENTITY_NAME}> {
-    const command = Builder<I{ENTITY_NAME}>()
-      .name(update{ENTITY_NAME}Dto.name)
-      .price(update{ENTITY_NAME}Dto.price)
-      .image(update{ENTITY_NAME}Dto.image)
-      .description(update{ENTITY_NAME}Dto.description)
+  update(@Param('id', ParseUUIDPipe) id: {Entity}Id, @Body() update{Entity}Dto: Update{Entity}Dto): Promise<I{Entity}> {
+    const command = Builder<I{Entity}>()
+      .name(update{Entity}Dto.name)
+      .price(update{Entity}Dto.price)
+      .image(update{Entity}Dto.image)
+      .description(update{Entity}Dto.description)
       .build();
-    return this.update{ENTITY_NAME}ByIdUseCase.execute(id, command);
+    return this.update{Entity}ByIdUseCase.execute(id, command);
   }
 
-  @ApiOperation({ summary: 'Delete a {ENTITY_NAME}' })
-  @ApiResponse({ status: HttpStatus.OK, description: 'The {ENTITY_NAME} has been successfully deleted.' })
-  @ApiParam({ name: 'id', type: String, description: 'The id of the {ENTITY_NAME}' })
+  @ApiOperation({ summary: 'Delete a {Entity}' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'The {Entity} has been successfully deleted.' })
+  @ApiParam({ name: 'id', type: String, description: 'The id of the {Entity}' })
   @Delete(':id')
   @Transactional()
-  delete(@Param('id', ParseUUIDPipe) id: {ENTITY_NAME}Id): Promise<void> {
-    return this.delete{ENTITY_NAME}ByIdUseCase.execute(id);
+  delete(@Param('id', ParseUUIDPipe) id: {Entity}Id): Promise<void> {
+    return this.delete{Entity}ByIdUseCase.execute(id);
   }
 }
 ```
@@ -624,40 +624,40 @@ export class {ENTITY_NAME}Controller {
 import { Module } from '@nestjs/common';
 
 // Controllers
-import { {ENTITY_NAME}Controller } from './adapters/inbounds/{ENTITY_NAME}.controller';
+import { {Entity}Controller } from './adapters/inbounds/{Entity}.controller';
 
 // Use Cases
-import { Create{ENTITY_NAME}UseCase } from './applications/usecases/create{ENTITY_NAME}.usecase';
-import { Delete{ENTITY_NAME}ByIdUseCase } from './applications/usecases/delete{ENTITY_NAME}ById.usecase';
-import { GetAll{ENTITY_NAME}sUseCase } from './applications/usecases/getAll{ENTITY_NAME}s.usecase';
-import { Get{ENTITY_NAME}ByIdUseCase } from './applications/usecases/get{ENTITY_NAME}ById.usecase';
-import { Update{ENTITY_NAME}ByIdUseCase } from './applications/usecases/update{ENTITY_NAME}ById.usecase';
+import { Create{Entity}UseCase } from './applications/usecases/create{Entity}.usecase';
+import { Delete{Entity}ByIdUseCase } from './applications/usecases/delete{Entity}ById.usecase';
+import { GetAll{Entity}sUseCase } from './applications/usecases/getAll{Entity}s.usecase';
+import { Get{Entity}ByIdUseCase } from './applications/usecases/get{Entity}ById.usecase';
+import { Update{Entity}ByIdUseCase } from './applications/usecases/update{Entity}ById.usecase';
 
 // Repository binding
-import { {ENTITY_NAME}Repository } from './applications/ports/{ENTITY_NAME}.repository';
-import { {ENTITY_NAME}TypeormRepository } from './adapters/outbounds/{ENTITY_NAME}.typeorm.repository';
+import { {Entity}Repository } from './applications/ports/{Entity}.repository';
+import { {Entity}TypeormRepository } from './adapters/outbounds/{Entity}.typeorm.repository';
 
 @Module({
-  controllers: [{ENTITY_NAME}Controller],
+  controllers: [{Entity}Controller],
   providers: [
     // Use Cases
-    Create{ENTITY_NAME}UseCase,
-    Delete{ENTITY_NAME}ByIdUseCase,
-    GetAll{ENTITY_NAME}sUseCase,
-    Get{ENTITY_NAME}ByIdUseCase,
-    Update{ENTITY_NAME}ByIdUseCase,
+    Create{Entity}UseCase,
+    Delete{Entity}ByIdUseCase,
+    GetAll{Entity}sUseCase,
+    Get{Entity}ByIdUseCase,
+    Update{Entity}ByIdUseCase,
 
     // Repository binding
     {
-      provide: {ENTITY_NAME}Repository,
-      useClass: {ENTITY_NAME}TypeormRepository,
+      provide: {Entity}Repository,
+      useClass: {Entity}TypeormRepository,
     },
   ],
   exports: [
     // Export use cases if needed by other modules
-    Create{ENTITY_NAME}UseCase,
-    Get{ENTITY_NAME}ByIdUseCase,
-    GetAll{ENTITY_NAME}sUseCase,
+    Create{Entity}UseCase,
+    Get{Entity}ByIdUseCase,
+    GetAll{Entity}sUseCase,
   ],
 })
 export class {MODULE_NAME}Module {}
@@ -668,10 +668,10 @@ export class {MODULE_NAME}Module {}
 ### Migration Creation
 ```bash
 # Create empty migration
-pnpm run migration:create -- src/databases/migrations/Create{ENTITY_NAME}Table
+pnpm run migration:create -- src/databases/migrations/Create{Entity}Table
 
 # Generate migration from Entity changes
-pnpm run migration:generate -- --name=Create{ENTITY_NAME}Table
+pnpm run migration:generate -- --name=Create{Entity}Table
 
 # Run migrations
 pnpm run migration:run
@@ -731,7 +731,7 @@ export class Create{Entity}Table{timestamp} implements MigrationInterface {
     await queryRunner.createIndex(
       '{entity}s',
       new TableIndex({
-        name: 'IDX_{ENTITY}_CREATED_AT',
+        name: 'IDX_{Entity}_CREATED_AT',
         columnNames: ['createdAt'],
       }),
     );
@@ -739,7 +739,7 @@ export class Create{Entity}Table{timestamp} implements MigrationInterface {
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     // Drop indexes first
-    await queryRunner.dropIndex('{entity}s', 'IDX_{ENTITY}_CREATED_AT');
+    await queryRunner.dropIndex('{entity}s', 'IDX_{Entity}_CREATED_AT');
 
     // Drop table
     await queryRunner.dropTable('{entity}s');
@@ -767,16 +767,16 @@ export class Create{Entity}Table{timestamp} implements MigrationInterface {
 - [ ] **E2E Tests**: Complete user journey validation
 
 ### Test File Naming
-- Domain: `{ENTITY_NAME}.domain.spec.ts`
-- UseCase: `{operation}{ENTITY_NAME}.usecase.spec.ts`
-- Repository: `{ENTITY_NAME}.typeorm.repository.spec.ts`
-- Controller: `{ENTITY_NAME}.controller.spec.ts`
+- Domain: `{Entity}.domain.spec.ts`
+- UseCase: `{operation}{Entity}.usecase.spec.ts`
+- Repository: `{Entity}.typeorm.repository.spec.ts`
+- Controller: `{Entity}.controller.spec.ts`
 
 > **📋 For detailed testing patterns**: See `docs/ai-specs/unit-test-spec.md`
 
 ## 📝 HTTP Client Testing
 
-#### HTTP Client Template (`{ENTITY_NAME}.http`)
+#### HTTP Client Template (`{Entity}.http`)
 ```http
 ### Login
 # @name login
@@ -789,37 +789,37 @@ content-type: application/json
 
 @myAccessToken = {{login.response.body.accessToken}}
 
-### Create {ENTITY_NAME}
-POST {{host}}/{ENTITY_NAME}s
+### Create {Entity}
+POST {{host}}/{Entity}s
 Content-Type: application/json
 authorization: Bearer {{myAccessToken}}
 {
-  "name": "{ENTITY_NAME} new",
+  "name": "{Entity} new",
   "price": 100,
   "image": "https://example.com/image.jpg",
-  "description": "This is a {ENTITY_NAME} description"
+  "description": "This is a {Entity} description"
 }
 
-### Get All {ENTITY_NAME}s
-GET {{host}}/{ENTITY_NAME}s
+### Get All {Entity}s
+GET {{host}}/{Entity}s
 authorization: Bearer {{myAccessToken}}
 
-### Get {ENTITY_NAME} By Id
-GET {{host}}/{ENTITY_NAME}s/{{uuid}}
+### Get {Entity} By Id
+GET {{host}}/{Entity}s/{{uuid}}
 authorization: Bearer {{myAccessToken}}
 
-### Update {ENTITY_NAME}
-PUT {{host}}/{ENTITY_NAME}s/{{uuid}}
+### Update {Entity}
+PUT {{host}}/{Entity}s/{{uuid}}
 Content-Type: application/json
 authorization: Bearer {{myAccessToken}}
 {
-  "name": "{ENTITY_NAME} updated",
+  "name": "{Entity} updated",
   "price": 200,
   "description": "Updated description"
 }
 
-### Delete {ENTITY_NAME}
-DELETE {{host}}/{ENTITY_NAME}s/{{uuid}}
+### Delete {Entity}
+DELETE {{host}}/{Entity}s/{{uuid}}
 authorization: Bearer {{myAccessToken}}
 ```
 
