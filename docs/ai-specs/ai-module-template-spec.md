@@ -61,6 +61,22 @@ src/{MODULE_NAME}/
 4. **Test-Driven Approach**: Generate corresponding test files (.spec.ts) for all business logic
 5. **Use Dependency Injection**: Leverage NestJS DI container properly
 
+
+### Testing Standards
+- **Unit Tests**: Test business logic in isolation
+- **Integration Tests**: Test adapter implementations
+- **E2E Tests**: Test complete user journeys
+- Use Vitest as the testing framework
+- Mock external dependencies properly
+- Achieve good test coverage (aim for >80%)
+
+### TDD Workflow
+- Red → Green → Refactor: write a failing test first, make it pass with minimal code, then refactor safely.
+- Start with UseCase specs in `applications/usecases` before implementing the UseCase.
+- Add Domain specs in `applications/domains` only when the domain contains business methods.
+- Keep tests focused (AAA: Arrange, Act, Assert) and independent from infrastructure.
+- Run tests continuously with `pnpm test:watch`; check coverage with `pnpm test:cov`.
+
 ## TDD-First Workflow
 - Write UseCase tests first following `docs/ai-specs/unit-test-spec.md`.
 - Keep repository dependencies mocked; do not touch adapters yet.
@@ -90,6 +106,27 @@ src/{MODULE_NAME}/
       `return Builder<ITodo>().id(1).title('todo1').build();`
 - Do not use the spread operator `...` (objects or arrays). Prefer explicit fields or Builder chaining.
 - Do not use `any`. Use precise types, generics, `unknown` with narrowing, or branded types as appropriate.
+
+## Development Workflow
+
+### Adding New Features (TDD-First)
+1. Define domain requirements
+2. Write UseCase tests first (failing) using patterns from `docs/ai-specs/unit-test-spec.md`
+3. Implement minimal UseCase logic to pass tests
+4. Add/adjust Domain with business rules if needed, and write Domain tests for methods
+5. Refactor code keeping tests green
+6. Implement adapters (entities/repositories)
+7. Add API endpoints with proper validation
+8. Update Swagger documentation
+9. Add integration/E2E tests
+10. Update module configurations
+
+### Code Quality Checks
+- Run `pnpm lint` for linting
+- Run `pnpm test` for unit tests
+- Run `pnpm test:cov` for coverage reports
+- Run `pnpm test:e2e` for end-to-end tests
+- Use Prettier for code formatting
 
 ## Implementation Steps
 
