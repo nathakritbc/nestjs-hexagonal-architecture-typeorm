@@ -12,6 +12,10 @@ This specification provides guidelines for writing comprehensive unit tests for 
 - **Object Building**: `builder-pattern` for creating test objects
 - **Assertions**: Vitest's built-in `expect` assertions
 
+### Testing Mock
+- Mock data use facker data
+- Mock repository use vitest-mock-extended
+
 ### Construction & Type Rules (for tests)
 
 - Use `builder-pattern` to construct objects; avoid inline object literals for domain/interface instances.
