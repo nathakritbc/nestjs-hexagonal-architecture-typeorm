@@ -192,7 +192,122 @@ describe('{Entity}', () => {
   });
 });
 ```
-#### unit test Delete template
+
+### Unit Test Create
+```typescript
+import { faker } from '@faker-js/faker';
+import { Builder } from 'builder-pattern';
+import { UserId } from 'src/users/applications/domains/user.domain';
+import { vi } from 'vitest';
+import { mock } from 'vitest-mock-extended';
+import {
+  {Entity}Amount,
+  {Entity}Category,
+  {Entity}CreatedAt,
+  {Entity}Date,
+  {Entity}Id,
+  {Entity}Notes,
+  {Entity}Title,
+  {Entity}UpdatedAt,
+  I{Entity},
+} from '../domains/{entity}.domain';
+import { {Entity}Repository } from '../ports/{entity}.repository';
+import { Create{Entity}UseCase } from './create{Entity}.usecase';
+
+describe('Create{Entity}UseCase', () => {
+  let useCase: Create{Entity}UseCase;
+  const {entity}Repository = mock<{Entity}Repository>();
+
+  beforeEach(() => {
+    useCase = new Create{Entity}UseCase({entity}Repository);
+  });
+
+  afterEach(() => {
+    vi.resetAllMocks();
+  });
+
+  const {entity}Id = faker.string.uuid() as {Entity}Id;
+  const userId = faker.string.uuid() as UserId;
+  const title = faker.commerce.productName() as {Entity}Title;
+  const amount = faker.number.float({ min: 1, max: 1000, fractionDigits: 2 }) as {Entity}Amount;
+  const date = faker.date.recent() as {Entity}Date;
+  const category = faker.helpers.arrayElement(['Food', 'Transport', 'Entertainment', 'Shopping']) as {Entity}Category;
+  const notes = faker.lorem.sentence() as {Entity}Notes;
+
+  const {entity}Data = Builder<I{Entity}>()
+    .uuid({entity}Id)
+    .title(title)
+    .amount(amount)
+    .date(date)
+    .category(category)
+    .notes(notes)
+    .userId(userId)
+    .createdAt(new Date() as {Entity}CreatedAt)
+    .updatedAt(new Date() as {Entity}UpdatedAt)
+    .build();
+
+  it('should create {entity} successfully', async () => {
+    // Arrange
+    const expected{Entity} = {entity}Data;
+
+    {entity}Repository.create.mockResolvedValue(expected{Entity});
+
+    // Act
+    const actual = await useCase.execute({entity}Data);
+
+    // Assert
+    expect(actual).toEqual(expected{Entity});
+    expect({entity}Repository.create).toHaveBeenCalledWith({entity}Data);
+    expect({entity}Repository.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('should create {entity} without optional fields successfully', async () => {
+    // Arrange
+    const expected{Entity} = {entity}Data;
+    {entity}Repository.create.mockResolvedValue(expected{Entity});
+
+    // Act
+    const actual = await useCase.execute({entity}Data);
+
+    // Assert
+    expect(actual).toEqual(expected{Entity});
+    expect({entity}Repository.create).toHaveBeenCalledWith({entity}Data);
+    expect({entity}Repository.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('should handle repository error when creating {entity}', async () => {
+    // Arrange
+    const errorMessage = 'Database connection failed';
+    const expectedError = new Error(errorMessage);
+    {entity}Repository.create.mockRejectedValue(expectedError);
+
+    // Act
+    const promise = useCase.execute({entity}Data);
+
+    // Assert
+    await expect(promise).rejects.toThrow(expectedError);
+    expect({entity}Repository.create).toHaveBeenCalledWith({entity}Data);
+    expect({entity}Repository.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('should handle validation error from repository', async () => {
+    // Arrange
+    const validationError = new Error('Invalid {entity} data');
+    {entity}Repository.create.mockRejectedValue(validationError);
+
+    // Act
+    const promise = useCase.execute({entity}Data);
+
+    // Assert
+    await expect(promise).rejects.toThrow(validationError);
+    expect({entity}Repository.create).toHaveBeenCalledWith({entity}Data);
+    expect({entity}Repository.create).toHaveBeenCalledTimes(1);
+  });
+});
+
+```
+
+#### Unit Test Delete template
 ```typescript
 import { faker } from '@faker-js/faker';
 import { NotFoundException } from '@nestjs/common'; 
@@ -287,7 +402,7 @@ describe('Get{Entity}ByIdUseCase', () => {
 
   it('should be get {entity} by id', async () => {
     //Arrange
-    const {entity} = mock<I{Entity}e>({ uuid: {entity}Id });
+    const {entity} = mock<I{Entity}>({ uuid: {entity}Id });
     {entity}Repository.getByIdAndUserId.mockResolvedValue({entity});
 
     //Act
@@ -314,7 +429,7 @@ import { Update{Entity}ByIdUseCase } from './update{Entity}ById.usecase';
 
 describe('Update{Entity}ByIdUseCase ', () => {
   let useCase: Update{Entity}ByIdUseCase ;
-  const {entity}Repository = mock<{entity}Repository>();
+  const {entity}Repository = mock<{Entity}Repository>();
 
   beforeEach(() => {
     useCase = new Update{Entity}ByIdUseCase ({entity}Repository);
@@ -324,7 +439,7 @@ describe('Update{Entity}ByIdUseCase ', () => {
     vi.resetAllMocks();
   });
 
-  const {entity}Id = faker.string.uuid() as {Entity}d;
+  const {entity}Id = faker.string.uuid() as {Entity}Id;
   const userId = faker.string.uuid() as UserId;
   it('should be throw error when {entity} not found', async () => {
     //Arrange
