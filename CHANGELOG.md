@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.2.0](https://github.com/nathakritbc/nestjs-hexagonal-architecture-typeorm/compare/v1.1.0...v1.2.0) (2025-10-01)
+
+### Features
+
+*  🎸  add unit tests for expense use cases ([c3e06f1](https://github.com/nathakritbc/nestjs-hexagonal-architecture-typeorm/commit/c3e06f13fe825e764198732276f47cc6454e2770))
+* 🎸 add unit tests for create use case in AI module ([3c318f4](https://github.com/nathakritbc/nestjs-hexagonal-architecture-typeorm/commit/3c318f4db316beb7cb5079c16977a96c5b10fe94))
+* 🎸 enhance AI specifications and repository functionality ([7686676](https://github.com/nathakritbc/nestjs-hexagonal-architecture-typeorm/commit/7686676f1296b352788c7cab6886f0cfdf4eb28d))
+
+### Code Refactoring
+
+* 💡  standardize entity naming conventions in AI module template ([eb9e6c1](https://github.com/nathakritbc/nestjs-hexagonal-architecture-typeorm/commit/eb9e6c1ab2c0fd2b932be514bca5c9435c656c2f))
+* 💡 remove userId from unit tests in AI module ([160f8d9](https://github.com/nathakritbc/nestjs-hexagonal-architecture-typeorm/commit/160f8d9a4bcaf5a18944b10c873f1c76f9c710ea))
+
 ## [1.1.0](https://github.com/nathakritbc/nestjs-hexagonal-architecture-typeorm/compare/v1.0.0...v1.1.0) (2025-09-02)
 
 ### Features
